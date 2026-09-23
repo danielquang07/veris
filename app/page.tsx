@@ -36,7 +36,7 @@ export default function Home() {
       <main className="flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-16">
         <header>
           <h1 className="text-3xl font-semibold tracking-tight text-black dark:text-zinc-50">
-            CanhBaoScam
+            Veris
           </h1>
           <p className="mt-2 text-zinc-600 dark:text-zinc-400">
             AI cảnh báo lừa đảo tiếng Việt — bằng chứng ghi trên Solana
