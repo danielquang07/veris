@@ -5,6 +5,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { NutGhiBangChung } from "@/components/NutGhiBangChung";
+import { PhanTichAI } from "@/components/PhanTichAI";
 
 // Nut ket noi vi phai tat SSR, neu khong se loi "hydration mismatch"
 // vi trang thai vi tren server va tren trinh duyet khac nhau.
@@ -74,7 +75,14 @@ export default function Home() {
 
         <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
           <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500">
-            Bước 2 — Ghi bằng chứng lên chain
+            Bước 2 — AI kiểm tra nội dung
+          </h2>
+          <PhanTichAI />
+        </section>
+
+        <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+          <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500">
+            Bước 3 — Ghi bằng chứng lên chain
           </h2>
           <NutGhiBangChung />
         </section>
