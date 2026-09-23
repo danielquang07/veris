@@ -2,10 +2,20 @@ import { NextResponse } from "next/server";
 import { chamDiemOnChain, type BaoCao } from "@/lib/chamDiem";
 
 // Goi Gemini bang REST truc tiep - khong can cai SDK, khong lo lech phien ban.
-// Neu ten model duoi day bao loi "not found", vao aistudio.google.com,
-// xem danh sach model dang duoc ho tro mien phi va thay ten o day.
-const MODEL = "gemini-2.0-flash";
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+//
+// Danh sach model theo thu tu uu tien. Goi lan luot tu tren xuong:
+// goi dau tien tra ve ket qua thi dung luon, loi qua tai (503) thi thu model sau.
+// Ly do can nhieu model: goi mien phi cua Google thuong xuyen bao 503 "high demand",
+// neu chi dung 1 model thi dang demo truoc giam khao rat de bi treo.
+// Dung ten co duoi "-latest" de Google co go phien ban cu thi app van chay.
+const MODELS = [
+  "gemini-flash-lite-latest",
+  "gemini-3-flash-preview",
+  "gemini-flash-latest",
+];
+
+const urlCuaModel = (model: string) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
 const SYSTEM_PROMPT = `Ban la chuyen gia nhan dien lua dao truc tuyen tai Viet Nam.
 
@@ -88,17 +98,14 @@ export async function POST(req: Request) {
     // Code tinh so lieu TRUOC, AI chi nhan ket qua da tinh
     const soLieu = chamDiemOnChain(baoCaos ?? [], viCanKiemTra ?? "");
 
-    const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                text: `Nội dung cần kiểm tra:
+    const noiDungGui = JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `Nội dung cần kiểm tra:
 """
 ${noiDung}
 """
@@ -107,24 +114,49 @@ Số liệu on-chain đã được hệ thống tính sẵn (không tính lại)
 ${JSON.stringify(soLieu, null, 2)}
 
 Hãy phân tích nội dung trên.`,
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: "application/json",
-          responseSchema: RESPONSE_SCHEMA,
+            },
+          ],
         },
-      }),
+      ],
+      generationConfig: {
+        temperature: 0.2,
+        responseMimeType: "application/json",
+        responseSchema: RESPONSE_SCHEMA,
+      },
     });
 
-    if (!response.ok) {
-      const chiTietLoi = await response.text();
-      console.error("Gemini báo lỗi:", response.status, chiTietLoi);
+    // Goi lan luot tung model trong danh sach cho den khi co model tra ve ket qua.
+    // Chi chuyen sang model sau khi gap loi qua tai (429/5xx), con loi sai key (4xx khac)
+    // thi dung luon vi thu model khac cung se sai y het.
+    let response: Response | null = null;
+    let loiCuoi = "";
+
+    for (const model of MODELS) {
+      const r = await fetch(`${urlCuaModel(model)}?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: noiDungGui,
+      });
+
+      if (r.ok) {
+        response = r;
+        break;
+      }
+
+      loiCuoi = await r.text();
+      console.error(`Gemini [${model}] loi ${r.status}:`, loiCuoi);
+
+      const dangQuaTai = r.status === 429 || r.status >= 500;
+      if (!dangQuaTai) break;
+    }
+
+    if (!response) {
+      const thieuKey = loiCuoi.includes("API_KEY") || loiCuoi.includes("API key");
       return NextResponse.json(
         {
-          loi: "AI không phản hồi được. Kiểm tra GEMINI_API_KEY còn hiệu lực không.",
+          loi: thieuKey
+            ? "GEMINI_API_KEY không hợp lệ hoặc đã bị thu hồi."
+            : "Hệ thống AI của Google đang quá tải. Thử lại sau ít giây.",
         },
         { status: 502 }
       );
