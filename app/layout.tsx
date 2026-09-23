@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CanhBaoScam",
+  title: "Veris",
   description:
-    "AI cảnh báo lừa đảo tiếng Việt, ghi bằng chứng lên Solana — UniHackfest 2026",
+    "Veris — AI xác minh lừa đảo tiếng Việt, ghi bằng chứng lên Solana. UniHackfest 2026",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
