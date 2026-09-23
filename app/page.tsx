@@ -5,7 +5,8 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState } from "react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { NutGhiBangChung } from "@/components/NutGhiBangChung";
-import { PhanTichAI } from "@/components/PhanTichAI";
+import { PhanTichAI, type KetQuaKemNoiDung } from "@/components/PhanTichAI";
+import { SoDen } from "@/components/SoDen";
 
 // Nut ket noi vi phai tat SSR, neu khong se loi "hydration mismatch"
 // vi trang thai vi tren server va tren trinh duyet khac nhau.
@@ -20,6 +21,11 @@ export default function Home() {
   const { publicKey } = useWallet();
   const [soDu, setSoDu] = useState<number | null>(null);
 
+  // Ket qua Buoc 2 duoc giu o day de Buoc 3 dung - day la cho noi 2 buoc lai
+  const [ketQuaAI, setKetQuaAI] = useState<KetQuaKemNoiDung | null>(null);
+  // Tang len moi khi ghi xong 1 bao cao -> bao So den tai lai
+  const [lanGhi, setLanGhi] = useState(0);
+
   useEffect(() => {
     if (!publicKey) {
       setSoDu(null);
@@ -29,7 +35,7 @@ export default function Home() {
       .getBalance(publicKey)
       .then((lamports) => setSoDu(lamports / LAMPORTS_PER_SOL))
       .catch(() => setSoDu(null));
-  }, [publicKey, connection]);
+  }, [publicKey, connection, lanGhi]);
 
   return (
     <div className="flex flex-1 flex-col items-center bg-zinc-50 font-sans dark:bg-black">
@@ -39,7 +45,8 @@ export default function Home() {
             Veris
           </h1>
           <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-            AI cảnh báo lừa đảo tiếng Việt — bằng chứng ghi trên Solana
+            AI đọc tin nhắn lừa đảo tiếng Việt, trích ra nơi nhận tiền, và ghi
+            vào sổ đen chung không ai sửa được
           </p>
         </header>
 
@@ -74,17 +81,36 @@ export default function Home() {
         </section>
 
         <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-          <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500">
-            Bước 2 — AI kiểm tra nội dung
+          <h2 className="mb-1 text-sm font-medium uppercase tracking-wide text-zinc-500">
+            Bước 2 — AI đọc nội dung
           </h2>
-          <PhanTichAI />
+          <p className="mb-4 text-sm text-zinc-500">
+            AI phân loại thủ đoạn và trích ra số tài khoản / ví nhận tiền
+          </p>
+          <PhanTichAI onXong={setKetQuaAI} />
         </section>
 
         <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-          <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500">
-            Bước 3 — Ghi bằng chứng lên chain
+          <h2 className="mb-1 text-sm font-medium uppercase tracking-wide text-zinc-500">
+            Bước 3 — Ghi vào sổ đen
           </h2>
-          <NutGhiBangChung />
+          <p className="mb-4 text-sm text-zinc-500">
+            Ghi nơi nhận tiền + dấu vân tay (hash) của kết luận lên Solana
+          </p>
+          <NutGhiBangChung
+            duLieu={ketQuaAI}
+            onGhiXong={() => setLanGhi((n) => n + 1)}
+          />
+        </section>
+
+        <section className="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+          <h2 className="mb-1 text-sm font-medium uppercase tracking-wide text-zinc-500">
+            Bước 4 — Sổ đen đã ghi
+          </h2>
+          <p className="mb-4 text-sm text-zinc-500">
+            Đây là thứ người sau tra cứu được trước khi chuyển tiền
+          </p>
+          <SoDen lamMoiKhi={lanGhi} />
         </section>
       </main>
     </div>

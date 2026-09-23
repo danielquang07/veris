@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { KetQuaPhanTich } from "@/app/api/phan-tich/route";
+import { MAU_LUA_DAO } from "@/lib/mauLuaDao";
 
 const NHAN_LOAI_THU_DOAN: Record<string, string> = {
   hua_loi_nhuan: "Hứa lợi nhuận cố định",
@@ -13,20 +14,39 @@ const NHAN_LOAI_THU_DOAN: Record<string, string> = {
   khong_ro: "Chưa đủ căn cứ để xác định",
 };
 
-export function PhanTichAI() {
+export type KetQuaKemNoiDung = {
+  noiDung: string;
+  ketQua: KetQuaPhanTich;
+};
+
+export function PhanTichAI({
+  onXong,
+}: {
+  onXong: (kq: KetQuaKemNoiDung | null) => void;
+}) {
   const [noiDung, setNoiDung] = useState("");
   const [dangChay, setDangChay] = useState(false);
   const [ketQua, setKetQua] = useState<KetQuaPhanTich | null>(null);
   const [loi, setLoi] = useState<string | null>(null);
 
+  function doiNoiDung(giaTri: string) {
+    setNoiDung(giaTri);
+    // Noi dung doi thi ket qua cu khong con dung nua -> xoa di,
+    // tranh viec Buoc 3 ghi len chain mot ket qua khong khop voi o nhap
+    setKetQua(null);
+    setLoi(null);
+    onXong(null);
+  }
+
   async function phanTich() {
     if (!noiDung.trim()) {
-      setLoi("Dán một đoạn tin nhắn vào trước đã.");
+      setLoi("Dán một đoạn tin nhắn vào trước, hoặc bấm một mẫu bên trên.");
       return;
     }
     setDangChay(true);
     setLoi(null);
     setKetQua(null);
+    onXong(null);
     try {
       const res = await fetch("/api/phan-tich", {
         method: "POST",
@@ -43,6 +63,7 @@ export function PhanTichAI() {
         return;
       }
       setKetQua(data.ketQua);
+      onXong({ noiDung, ketQua: data.ketQua });
     } catch {
       setLoi("Không gọi được API. Kiểm tra kết nối mạng.");
     } finally {
@@ -52,11 +73,26 @@ export function PhanTichAI() {
 
   return (
     <div className="w-full">
+      <p className="mb-2 text-xs text-zinc-500">
+        Chưa biết nhập gì? Bấm thử một mẫu:
+      </p>
+      <div className="mb-3 flex flex-wrap gap-2">
+        {MAU_LUA_DAO.map((m) => (
+          <button
+            key={m.nhan}
+            onClick={() => doiNoiDung(m.noiDung)}
+            className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700 transition hover:border-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          >
+            {m.nhan}
+          </button>
+        ))}
+      </div>
+
       <textarea
         value={noiDung}
-        onChange={(e) => setNoiDung(e.target.value)}
+        onChange={(e) => doiNoiDung(e.target.value)}
         placeholder="Dán nội dung tin nhắn đáng ngờ vào đây..."
-        rows={4}
+        rows={5}
         className="w-full rounded-lg border border-zinc-300 bg-white p-3 text-sm text-zinc-900 outline-none focus:border-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
       />
 
@@ -90,6 +126,17 @@ export function PhanTichAI() {
               </span>
             </p>
           </div>
+
+          {ketQua.noi_nhan_tien && (
+            <div className="rounded-md border border-amber-500/40 bg-amber-50 p-3 dark:bg-amber-950/30">
+              <p className="text-xs uppercase tracking-wide text-amber-700 dark:text-amber-500">
+                Nơi nhận tiền — đây là thứ sẽ ghi vào sổ đen
+              </p>
+              <p className="mt-1 break-all font-mono text-sm font-medium text-amber-900 dark:text-amber-200">
+                {ketQua.noi_nhan_tien}
+              </p>
+            </div>
+          )}
 
           {ketQua.dau_hieu.length > 0 && (
             <div>

@@ -25,8 +25,19 @@ LUAT BAT BUOC, khong duoc vi pham:
 3. Trich dan dau hieu bang dung cum tu co that trong noi dung, khong bia them.
 4. Neu noi dung khong du can cu, chon loai_thu_doan = "khong_ro" va noi ro la khong du du lieu.
 5. KHONG dua loi khuyen dau tu duoi bat ky hinh thuc nao.
+6. TRICH RA noi nhan tien neu co: so tai khoan ngan hang, so dien thoai,
+   hoac dia chi vi crypto ma noi dung yeu cau chuyen tien toi.
+   Chep DUNG NGUYEN chuoi so/dia chi, khong them bot ky tu nao.
+   Khong tim thay thi de noi_nhan_tien = "" (chuoi rong).
 
-Viet tieng Viet, ngan gon, cho nguoi lon tuoi khong ranh cong nghe cung hieu.
+QUAN TRONG VE NGON NGU: cac truong giai_thich va loi_khuyen phai viet
+bang TIENG VIET CO DAU DAY DU (vi du: "Noi dung nay co dau hieu lua dao"
+phai viet thanh "Nội dung này có dấu hiệu lừa đảo").
+Nguoi doc la nguoi lon tuoi, khong ranh cong nghe - viet ngan gon, de hieu,
+khong dung tu chuyen mon.
+Rieng truong dau_hieu thi chep NGUYEN VAN cum tu trong noi dung goc,
+giu dung dau/khong dau nhu ban goc.
+
 Tra loi DUNG theo khuon JSON da cho, khong them chu nao ngoai JSON.`;
 
 // Khuon du lieu ep AI phai theo - day la tang phong thu thu 2 chong hallucination
@@ -54,6 +65,11 @@ const RESPONSE_SCHEMA = {
     do_tin_cay: { type: "NUMBER", description: "Tu 0 den 1" },
     giai_thich: { type: "STRING" },
     loi_khuyen: { type: "STRING" },
+    noi_nhan_tien: {
+      type: "STRING",
+      description:
+        "So tai khoan / so dien thoai / dia chi vi ma noi dung yeu cau chuyen tien toi. Chuoi rong neu khong co.",
+    },
   },
   required: [
     "loai_thu_doan",
@@ -61,6 +77,7 @@ const RESPONSE_SCHEMA = {
     "do_tin_cay",
     "giai_thich",
     "loi_khuyen",
+    "noi_nhan_tien",
   ],
 };
 
@@ -70,6 +87,7 @@ export type KetQuaPhanTich = {
   do_tin_cay: number;
   giai_thich: string;
   loi_khuyen: string;
+  noi_nhan_tien: string;
 };
 
 export async function POST(req: Request) {
