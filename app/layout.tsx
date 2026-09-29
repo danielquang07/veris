@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Veris",
   description:
-    "Veris — AI xác minh lừa đảo tiếng Việt, ghi bằng chứng lên Solana. UniHackfest 2026",
+    "Veris — lớp chống lừa đảo cho mục Thanh toán của Hào Khí Đại Việt: kiểm tra rút ví, kèo người–người qua temp wallet, sổ đen trên Solana. UniHackfest 2026",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
