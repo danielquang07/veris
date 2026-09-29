@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { EscrowTrade } from "@/components/market/EscrowTrade";
 import { P2PTrade } from "@/components/payment/P2PTrade";
 import { Withdraw } from "@/components/payment/Withdraw";
 
@@ -12,7 +13,7 @@ const WalletMultiButton = dynamic(
   { ssr: false }
 );
 
-type Tab = "withdraw" | "p2p";
+type Tab = "withdraw" | "p2p" | "escrow";
 
 const TABS: { id: Tab; label: string; hint: string }[] = [
   {
@@ -24,6 +25,11 @@ const TABS: { id: Tab; label: string; hint: string }[] = [
     id: "p2p",
     label: "② Trao đổi người–người",
     hint: "Hai bên cùng cọc 30–50% vào temp wallet. Veris kiểm tra ví hai bên và địa chỉ ví lạ trong chat trước khi mở temp wallet.",
+  },
+  {
+    id: "escrow",
+    label: "③ Kèo on-chain (escrow)",
+    hint: "Giao dịch vật phẩm thật trên Solana devnet: tiền cọc và tiền hàng nằm trong smart contract, chỉ được trả về đúng 2 ví của kèo.",
   },
 ];
 
@@ -76,6 +82,9 @@ export default function PaymentPage() {
           </div>
           <div className={tab === "p2p" ? "" : "hidden"}>
             <P2PTrade />
+          </div>
+          <div className={tab === "escrow" ? "" : "hidden"}>
+            <EscrowTrade />
           </div>
         </section>
       </main>

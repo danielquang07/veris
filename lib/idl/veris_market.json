@@ -1,0 +1,1168 @@
+{
+  "address": "BhG6x6u5PHKwf97eZBEuAnTQhBv6ErEAnDe8YUHCjxG",
+  "metadata": {
+    "name": "veris_market",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "docs": [
+    "Veris Market: escrow for player-to-player item trades in Hao Khi Dai Viet.",
+    "Both sides deposit, the buyer pays the rest into escrow, delivery releases funds to the seller.",
+    "Funds can only ever leave to the trade's buyer or seller."
+  ],
+  "instructions": [
+    {
+      "name": "claim_timeout",
+      "discriminator": [
+        130,
+        234,
+        45,
+        53,
+        120,
+        90,
+        86,
+        178
+      ],
+      "accounts": [
+        {
+          "name": "caller",
+          "docs": [
+            "Anyone may crank an expired trade; funds still only go to the two parties"
+          ],
+          "signer": true
+        },
+        {
+          "name": "trade",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "trade.buyer",
+                "account": "Trade"
+              },
+              {
+                "kind": "account",
+                "path": "trade.trade_id",
+                "account": "Trade"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer",
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "close_trade",
+      "discriminator": [
+        161,
+        199,
+        69,
+        82,
+        9,
+        63,
+        203,
+        42
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "trade",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "trade.buyer",
+                "account": "Trade"
+              },
+              {
+                "kind": "account",
+                "path": "trade.trade_id",
+                "account": "Trade"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "confirm_delivery",
+      "discriminator": [
+        11,
+        109,
+        227,
+        53,
+        179,
+        190,
+        88,
+        155
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "trade",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "trade.buyer",
+                "account": "Trade"
+              },
+              {
+                "kind": "account",
+                "path": "trade.trade_id",
+                "account": "Trade"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer",
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_trade",
+      "discriminator": [
+        183,
+        82,
+        24,
+        245,
+        248,
+        30,
+        204,
+        246
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "seller"
+        },
+        {
+          "name": "trade",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              },
+              {
+                "kind": "arg",
+                "path": "trade_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "trade_id",
+          "type": "u64"
+        },
+        {
+          "name": "value",
+          "type": "u64"
+        },
+        {
+          "name": "item",
+          "type": "string"
+        },
+        {
+          "name": "stage_secs",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "deposit",
+      "discriminator": [
+        242,
+        35,
+        198,
+        137,
+        82,
+        225,
+        242,
+        182
+      ],
+      "accounts": [
+        {
+          "name": "party",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "trade",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "trade.buyer",
+                "account": "Trade"
+              },
+              {
+                "kind": "account",
+                "path": "trade.trade_id",
+                "account": "Trade"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "init_config",
+      "discriminator": [
+        23,
+        235,
+        115,
+        232,
+        168,
+        96,
+        1,
+        231
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "open_dispute",
+      "discriminator": [
+        137,
+        25,
+        99,
+        119,
+        23,
+        223,
+        161,
+        42
+      ],
+      "accounts": [
+        {
+          "name": "party",
+          "signer": true
+        },
+        {
+          "name": "trade",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "trade.buyer",
+                "account": "Trade"
+              },
+              {
+                "kind": "account",
+                "path": "trade.trade_id",
+                "account": "Trade"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "pay_remainder",
+      "discriminator": [
+        75,
+        60,
+        189,
+        8,
+        206,
+        154,
+        20,
+        55
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "trade",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "trade.buyer",
+                "account": "Trade"
+              },
+              {
+                "kind": "account",
+                "path": "trade.trade_id",
+                "account": "Trade"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "resolve_dispute",
+      "discriminator": [
+        231,
+        6,
+        202,
+        6,
+        96,
+        103,
+        12,
+        230
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "trade",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "trade.buyer",
+                "account": "Trade"
+              },
+              {
+                "kind": "account",
+                "path": "trade.trade_id",
+                "account": "Trade"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer",
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "outcome",
+          "type": {
+            "defined": {
+              "name": "DisputeOutcome"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "set_admin",
+      "discriminator": [
+        251,
+        163,
+        0,
+        52,
+        91,
+        194,
+        187,
+        92
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "unfreeze",
+      "discriminator": [
+        133,
+        160,
+        68,
+        253,
+        80,
+        232,
+        218,
+        247
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "trade",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  97,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "trade.buyer",
+                "account": "Trade"
+              },
+              {
+                "kind": "account",
+                "path": "trade.trade_id",
+                "account": "Trade"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer",
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "Trade",
+      "discriminator": [
+        132,
+        139,
+        123,
+        31,
+        157,
+        196,
+        244,
+        190
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "DepositMade",
+      "discriminator": [
+        210,
+        201,
+        130,
+        183,
+        244,
+        203,
+        155,
+        199
+      ]
+    },
+    {
+      "name": "DisputeOpened",
+      "discriminator": [
+        239,
+        222,
+        102,
+        235,
+        193,
+        85,
+        1,
+        214
+      ]
+    },
+    {
+      "name": "DisputeResolved",
+      "discriminator": [
+        121,
+        64,
+        249,
+        153,
+        139,
+        128,
+        236,
+        187
+      ]
+    },
+    {
+      "name": "RemainderPaid",
+      "discriminator": [
+        165,
+        208,
+        243,
+        150,
+        10,
+        54,
+        190,
+        82
+      ]
+    },
+    {
+      "name": "TradeCreated",
+      "discriminator": [
+        110,
+        86,
+        122,
+        20,
+        81,
+        78,
+        181,
+        72
+      ]
+    },
+    {
+      "name": "TradeSettled",
+      "discriminator": [
+        22,
+        119,
+        166,
+        225,
+        175,
+        53,
+        93,
+        216
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidValue",
+      "msg": "Trade value must be greater than 0"
+    },
+    {
+      "code": 6001,
+      "name": "SameParty",
+      "msg": "Buyer and seller must be different wallets"
+    },
+    {
+      "code": 6002,
+      "name": "ItemTooLong",
+      "msg": "Item name is too long"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidStageDuration",
+      "msg": "Stage duration is out of range"
+    },
+    {
+      "code": 6004,
+      "name": "NotAParty",
+      "msg": "Signer is not a party of this trade"
+    },
+    {
+      "code": 6005,
+      "name": "NotAdmin",
+      "msg": "Only the market admin can do this"
+    },
+    {
+      "code": 6006,
+      "name": "NotBuyerOrAdmin",
+      "msg": "Only the buyer or the market admin can confirm delivery"
+    },
+    {
+      "code": 6007,
+      "name": "WrongStatus",
+      "msg": "The trade is not at the right step for this action"
+    },
+    {
+      "code": 6008,
+      "name": "AlreadyDeposited",
+      "msg": "This party has already deposited"
+    },
+    {
+      "code": 6009,
+      "name": "DeadlinePassed",
+      "msg": "The deadline for this step has passed"
+    },
+    {
+      "code": 6010,
+      "name": "DeadlineNotReached",
+      "msg": "The deadline for this step has not passed yet"
+    },
+    {
+      "code": 6011,
+      "name": "TradeNotSettled",
+      "msg": "Trade still holds funds"
+    },
+    {
+      "code": 6012,
+      "name": "MathOverflow",
+      "msg": "Arithmetic overflow"
+    }
+  ],
+  "types": [
+    {
+      "name": "Config",
+      "docs": [
+        "Market-wide settings. The admin (game operator) resolves disputes and may confirm delivery."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositMade",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "trade",
+            "type": "pubkey"
+          },
+          {
+            "name": "party",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DisputeOpened",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "trade",
+            "type": "pubkey"
+          },
+          {
+            "name": "by",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DisputeOutcome",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "BuyerRight"
+          },
+          {
+            "name": "SellerRight"
+          },
+          {
+            "name": "RefundBoth"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DisputeResolved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "trade",
+            "type": "pubkey"
+          },
+          {
+            "name": "outcome",
+            "type": {
+              "defined": {
+                "name": "DisputeOutcome"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RemainderPaid",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "trade",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Trade",
+      "docs": [
+        "One player-to-player item trade. The account itself holds the escrowed lamports.",
+        "",
+        "Step order: AwaitingDeposit -> Deposited -> (buyer pays the rest) Paid -> (delivery) Completed.",
+        "The buyer pays the remainder BEFORE delivery; otherwise a buyer could take goods worth 100,",
+        "abandon a 30 deposit and still be up 70."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "trade_id",
+            "type": "u64"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "item",
+            "type": "string"
+          },
+          {
+            "name": "value",
+            "type": "u64"
+          },
+          {
+            "name": "deposit",
+            "type": "u64"
+          },
+          {
+            "name": "buyer_deposited",
+            "type": "bool"
+          },
+          {
+            "name": "seller_deposited",
+            "type": "bool"
+          },
+          {
+            "name": "remainder_paid",
+            "type": "bool"
+          },
+          {
+            "name": "balance",
+            "docs": [
+              "Escrowed lamports, excluding the account's rent"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "TradeStatus"
+              }
+            }
+          },
+          {
+            "name": "status_before_freeze",
+            "type": {
+              "defined": {
+                "name": "TradeStatus"
+              }
+            }
+          },
+          {
+            "name": "stage_secs",
+            "type": "i64"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TradeCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "trade",
+            "type": "pubkey"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "value",
+            "type": "u64"
+          },
+          {
+            "name": "deposit",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TradeSettled",
+      "docs": [
+        "Emitted whenever escrowed funds leave the trade account"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "trade",
+            "type": "pubkey"
+          },
+          {
+            "name": "to_buyer",
+            "type": "u64"
+          },
+          {
+            "name": "to_seller",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "TradeStatus"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TradeStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "AwaitingDeposit"
+          },
+          {
+            "name": "Deposited"
+          },
+          {
+            "name": "Paid"
+          },
+          {
+            "name": "Completed"
+          },
+          {
+            "name": "Frozen"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    }
+  ],
+  "constants": [
+    {
+      "name": "CONFIG_SEED",
+      "type": "bytes",
+      "value": "[99, 111, 110, 102, 105, 103]"
+    },
+    {
+      "name": "HIGH_DEPOSIT_BPS",
+      "type": "u64",
+      "value": "5000"
+    },
+    {
+      "name": "LOW_DEPOSIT_BPS",
+      "type": "u64",
+      "value": "3000"
+    },
+    {
+      "name": "MAX_STAGE_SECS",
+      "type": "i64",
+      "value": "604800"
+    },
+    {
+      "name": "MIN_STAGE_SECS",
+      "docs": [
+        "Each stage (deposit, pay remainder, deliver) must finish within this window"
+      ],
+      "type": "i64",
+      "value": "60"
+    },
+    {
+      "name": "TRADE_SEED",
+      "type": "bytes",
+      "value": "[116, 114, 97, 100, 101]"
+    }
+  ]
+}
