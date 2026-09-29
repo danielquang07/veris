@@ -1,49 +1,27 @@
-# Deploy Veris — backend Render, frontend Vercel
+# Deploy Veris lên Vercel
 
-Cùng một repo, deploy 2 nơi. Backend trên Render phục vụ `/api/*`; frontend trên Vercel gọi sang Render qua `NEXT_PUBLIC_API_URL`.
+Chỉ cần Vercel: Vercel chạy cả giao diện lẫn các API `/api/*`.
 
-## 1. Backend — Render (Web Service)
-
-| Mục | Giá trị |
-|---|---|
-| Repo | `danielquang07/veris`, nhánh `main` |
-| Runtime | Node |
-| Build Command | `npm install && npm run build` |
-| Start Command | `npm start` |
-| Health Check Path | `/api/health` |
-| Auto-Deploy | Bật (push lên `main` là tự deploy lại) |
-
-Biến môi trường:
+1. Vercel → **Add New → Project** → import repo `danielquang07/veris`.
+2. Framework: Next.js, giữ nguyên lệnh build mặc định.
+3. Biến môi trường (đều tùy chọn):
 
 | Biến | Giá trị |
 |---|---|
 | `NEXT_PUBLIC_RPC_URL` | RPC Solana devnet (để trống = RPC công cộng) |
 | `BLACKLIST_SOURCES` | Ví admin nguồn sổ đen, cách nhau dấu phẩy |
-| `ALLOWED_ORIGINS` | URL frontend Vercel, ví dụ `https://veris.vercel.app` (để trống = cho mọi nguồn) |
 
-Kiểm tra: mở `https://<ten-render>.onrender.com/api/health` → thấy `"status":"ok"`.
+4. **Deploy**. Kiểm tra: mở `https://<ten-du-an>.vercel.app/api/health` → thấy `"status":"ok"`.
 
-## 2. Frontend — Vercel
+Push lên nhánh `main` là Vercel tự deploy lại.
 
-- Import repo `danielquang07/veris`, Framework: Next.js, giữ nguyên lệnh build mặc định.
-- Biến môi trường:
+## Smart contract
 
-| Biến | Giá trị |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | URL Render, ví dụ `https://veris-api.onrender.com` (không có `/` ở cuối) |
-| `NEXT_PUBLIC_RPC_URL` | Giống bên Render |
+Program `veris_market` đã deploy trên Solana **devnet**, địa chỉ nằm trong `lib/idl/veris_market.json`, web tự dùng, không cần cấu hình.
+Mã nguồn và test: `anchor/programs/veris_market`.
 
-Biến `NEXT_PUBLIC_*` được gắn vào lúc build, nên đổi biến xong phải **Redeploy**.
+## Ghép vào source chính (team Tùng)
 
-## 3. Giữ backend không ngủ
-
-Render free ngủ sau ~15 phút không có request. Workflow `.github/workflows/keep-alive.yml` gọi `/api/health` 5 phút một lần.
-
-- GitHub → Settings → Secrets and variables → Actions → **Variables** → thêm `BACKEND_URL` = URL Render.
-- Chạy thử: tab Actions → keep-alive → Run workflow.
-
-## 4. Ghép vào source chính (team Tùng)
-
-- Chỉ cần các API: xem `docs/INTEGRATION.md` (request/response của `withdraw-check`, `trade-check`, `temp-wallet`); `GET /api/health` để kiểm tra backend còn sống.
-- Gọi từ source chính: trỏ tới URL Render, thêm domain của source chính vào `ALLOWED_ORIGINS`.
-- Muốn chép code vào: các file cần là `app/api/*`, `lib/*`, `proxy.ts`, `components/payment/*` (giao diện mẫu).
+- Các API: xem `docs/INTEGRATION.md` (`withdraw-check`, `trade-check`, `temp-wallet`); `GET /api/health` để kiểm tra còn sống.
+- Gọi API từ domain khác: đặt `ALLOWED_ORIGINS` = domain của source chính (để trống = cho mọi nguồn).
+- Chép code: `app/api/*`, `lib/*`, `proxy.ts`, `components/payment/*`, `components/market/*`.

@@ -1,7 +1,7 @@
 /**
  * Base URL of the backend API.
  * Empty = same origin (frontend and API deployed together, or local dev).
- * Split deploy: set NEXT_PUBLIC_API_URL on Vercel to the Render URL, e.g. https://veris-api.onrender.com
+ * Only set NEXT_PUBLIC_API_URL when the API runs on another domain.
  */
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
 

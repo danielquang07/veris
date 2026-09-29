@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * CORS for the API when the frontend (Vercel) and backend (Render) run on different origins.
- * ALLOWED_ORIGINS: comma-separated frontend origins, e.g. https://veris.vercel.app
+ * CORS for the API when another site (e.g. the main game) calls it from a different origin.
+ * ALLOWED_ORIGINS: comma-separated origins, e.g. https://game.example.com
  * Left empty = allow any origin (fine for the hackathon demo, tighten for production).
  */
 const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? "")
