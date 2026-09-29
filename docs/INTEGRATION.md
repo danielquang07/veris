@@ -17,7 +17,7 @@ Demo chạy được ở `/` (mục Thanh toán).
 
 ## 1. `POST /api/withdraw-check` — Tự rút về ví
 
-Chỉ dùng code, không gọi AI. Nếu người chơi rút đúng ví của mình thì game không hiện gì thêm.
+Chỉ dùng code. Nếu người chơi rút đúng ví của mình thì game không hiện gì thêm.
 
 ```json
 // request
@@ -51,30 +51,25 @@ Game xử lý như sau:
   "value": 100,
   "buyer": "<ví người mua>",
   "seller": "<ví người bán>",
-  "chat": "<đoạn chat chốt kèo>",       // tùy chọn, có thì AI đọc
+  "chat": "<đoạn chat chốt kèo>",       // tùy chọn, để tìm địa chỉ ví lạ
   "tempWalletAddress": "<nếu đã có>"     // tùy chọn, để không bị tính là "ví lạ trong chat"
 }
 // response (rút gọn)
 {
   "depositRate": 0.3, "deposit": 30,
-  "level": "green" | "yellow" | "red",
-  "recommendation": "continue" | "warn" | "freeze",
+  "level": "green" | "yellow",
+  "recommendation": "continue" | "warn",
   "reasons": ["..."],                    // tiếng Việt
   "buyer":  { "reportCount": 0, "isNewWallet": true, "firstFunder": null, "funderBlacklisted": false, ... },
   "seller": { ... },
-  "strangerAddressesInChat": ["..."],
-  "ai": { "tactics": ["fake_admin", ...], "risk": 0.95, "evidence": ["..."], "explanation": "...", "advice": "..." } | null,
-  "aiError": null
+  "strangerAddressesInChat": ["..."]
 }
 ```
 
 - `continue`: mở temp wallet bình thường.
 - `warn`: hiện cảnh báo cho cả hai bên, người chơi tự quyết có tiếp tục hay không.
-- `freeze`: vẫn mở temp wallet nhưng **đóng băng ngay**, đồng thời báo admin xem xét.
 
-**Code quyết định, không phải AI.** AI chỉ phân loại thủ đoạn và chấm điểm rủi ro. Chỉ khi có thủ đoạn nguy hiểm (giả admin, địa chỉ cọc giả, lệnh hệ thống giả) **và** rủi ro ≥ 0.8 thì code mới chuyển sang `freeze`.
-
-**Nếu AI lỗi**, API vẫn trả kết quả dựa trên phần code, kèm ghi chú. Kèo vẫn được bảo vệ bởi tiền cọc.
+Toàn bộ kiểm tra là code cố định: sổ đen, ví nạp tiền đầu tiên, ví mới tạo, địa chỉ ví lạ trong chat.
 
 ## 3. `POST /api/temp-wallet` — Luật temp wallet
 
@@ -102,7 +97,7 @@ Ví dụ kèo 100 SOL, cọc 30%:
 | Người mua không trả nốt | Người bán nhận 60 (cọc của mình + cọc người mua) |
 | Người bán không giao | Người mua nhận 130 (100 đã trả + 30 cọc người bán) |
 
-**Chốt an toàn:** mọi lệnh chi trả chỉ được đi về đúng 2 ví của kèo, và tổng phải bằng đúng số dư. Sai một trong hai điều này thì lệnh bị chặn. Nhờ vậy, kể cả khi AI bị lừa bởi chat, tiền vẫn không thể đi sai chỗ.
+**Chốt an toàn:** mọi lệnh chi trả chỉ được đi về đúng 2 ví của kèo, và tổng phải bằng đúng số dư. Sai một trong hai điều này thì lệnh bị chặn. Nhờ vậy, kể cả khi có người gõ lệnh giả vào chat, tiền vẫn không thể đi sai chỗ.
 
 ---
 
@@ -113,4 +108,4 @@ Ví dụ kèo 100 SOL, cọc 30%:
 3. **Cọc của người mua được tính vào tiền hàng**, nên tổng người mua trả đúng bằng giá trị kèo.
 4. **Sổ đen**: là các memo `SCAMREG` trên Solana do các ví nguồn ký. Khai báo ví nguồn (ví admin game, ví nhóm Veris) trong biến `BLACKLIST_SOURCES` của `.env.local`.
 5. **Sui**: hiện chỉ kiểm tra định dạng địa chỉ và đối chiếu sổ đen. Chưa đọc lịch sử ví Sui (tuổi ví, ví nạp tiền đầu tiên); tính năng này mới có cho Solana.
-6. **Đọc chat ngầm**: cần ghi vào điều khoản sử dụng của game, vì chat là dữ liệu cá nhân (Nghị định 13/2023).
+6. **Quét chat tìm địa chỉ ví**: cần ghi vào điều khoản sử dụng của game, vì chat là dữ liệu cá nhân (Nghị định 13/2023).

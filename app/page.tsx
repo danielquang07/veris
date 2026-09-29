@@ -23,7 +23,7 @@ const TABS: { id: Tab; label: string; hint: string }[] = [
   {
     id: "p2p",
     label: "② Trao đổi người–người",
-    hint: "Hai bên cùng cọc 30–50% vào temp wallet. Veris đọc chat ngầm, chỉ lên tiếng khi có dấu hiệu lừa.",
+    hint: "Hai bên cùng cọc 30–50% vào temp wallet. Veris kiểm tra ví hai bên và địa chỉ ví lạ trong chat trước khi mở temp wallet.",
   },
 ];
 

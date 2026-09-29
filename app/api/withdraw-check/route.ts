@@ -17,7 +17,7 @@ import {
 
 /**
  * Mode 1 - Withdraw to your own wallet.
- * Pure code, no AI: a player withdrawing to their own wallet is never asked anything.
+ * Pure code: a player withdrawing to their own wallet is never asked anything.
  *
  * Check 1: does the address match the chain? (Sui address for SUI, Solana for SOL)
  * Check 2: is it a wallet linked to the game account?

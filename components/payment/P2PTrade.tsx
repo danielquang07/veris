@@ -26,15 +26,6 @@ import {
   secondaryButtonClass,
 } from "@/components/payment/ui";
 
-const TACTIC_LABEL: Record<string, string> = {
-  off_platform: "Dụ giao dịch ngoài temp wallet",
-  fake_admin: "Mạo danh admin / GM",
-  fake_deposit_address: "Đưa địa chỉ cọc giả qua chat",
-  double_reward: "Hứa hoàn x2 / thưởng thêm",
-  time_pressure: "Hối thúc, tạo áp lực thời gian",
-  fake_system_command: "Giả lệnh hệ thống",
-};
-
 const STATUS_LABEL: Record<TradeStatus, string> = {
   awaiting_deposit: "③ Chờ hai bên cọc",
   deposited: "④ Chờ người mua trả nốt",
@@ -47,7 +38,6 @@ const STATUS_LABEL: Record<TradeStatus, string> = {
 const LEVEL_TITLE = {
   green: "🟢 Kèo ổn — có thể mở temp wallet",
   yellow: "🟡 Có điểm cần chú ý",
-  red: "🔴 Nghi lừa đảo — Veris đề xuất đóng băng",
 };
 
 function PartySummary({ label, party }: { label: string; party: PartyCheck }) {
@@ -134,22 +124,13 @@ export function P2PTrade() {
   function openTempWallet() {
     if (!check) return;
     try {
-      let t = createTrade({
+      const t = createTrade({
         id: Date.now().toString(36).toUpperCase(),
         chain,
         value: Number(value),
         buyer: buyer.trim(),
         seller: seller.trim(),
       });
-      // The AI's only power: freeze. The money stays put until an admin decides.
-      if (check.recommendation === "freeze") {
-        const tactics = check.ai?.tactics.map((x) => TACTIC_LABEL[x] ?? x).join(", ");
-        t = applyEvent(t, {
-          type: "freeze",
-          by: "veris",
-          reason: tactics ? `nghi lừa đảo (${tactics})` : "nghi lừa đảo",
-        });
-      }
       setTrade(t);
       setError(null);
     } catch (e) {
@@ -177,8 +158,7 @@ export function P2PTrade() {
     setReportError(null);
     try {
       const target = wrongSide === "buyer" ? trade.buyer : trade.seller;
-      const tactic = check?.ai?.tactics[0] ?? "tranh_chap";
-      const result = await writeEvidence(connection, publicKey, sendTransaction, buildReportMemo(target, tactic));
+      const result = await writeEvidence(connection, publicKey, sendTransaction, buildReportMemo(target, "tranh_chap"));
       setReportLink(result.solscanLink);
     } catch (e) {
       setReportError((e as Error).message);
@@ -238,7 +218,7 @@ export function P2PTrade() {
       </div>
 
       <div>
-        <Label>① Chat chốt kèo (Veris đọc ngầm)</Label>
+        <Label>① Chat chốt kèo</Label>
         <div className="mb-2 flex flex-wrap gap-2">
           {SAMPLE_CHATS.map((c) => (
             <Chip
@@ -285,28 +265,6 @@ export function P2PTrade() {
             </ul>
           )}
 
-          {check.ai && (check.ai.tactics.length > 0 || check.ai.explanation) && (
-            <div className="mt-3 rounded-md border border-current/20 p-3 text-sm">
-              <p className="text-xs uppercase tracking-wide opacity-70">
-                AI đọc chat · rủi ro {Math.round(check.ai.risk * 100)}%
-              </p>
-              {check.ai.tactics.length > 0 && (
-                <p className="mt-1 font-medium">
-                  {check.ai.tactics.map((t) => TACTIC_LABEL[t] ?? t).join(" · ")}
-                </p>
-              )}
-              {check.ai.evidence.length > 0 && (
-                <ul className="mt-1 list-disc pl-5">
-                  {check.ai.evidence.map((d, i) => (
-                    <li key={i} className="italic">“{d}”</li>
-                  ))}
-                </ul>
-              )}
-              {check.ai.explanation && <p className="mt-1">{check.ai.explanation}</p>}
-              {check.ai.advice && <p className="mt-1 font-medium">→ {check.ai.advice}</p>}
-            </div>
-          )}
-
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <PartySummary label="Người mua" party={check.buyer} />
             <PartySummary label="Người bán" party={check.seller} />
@@ -314,11 +272,9 @@ export function P2PTrade() {
 
           {!trade && (
             <button onClick={openTempWallet} className={`${primaryButtonClass} mt-3`}>
-              {check.recommendation === "freeze"
-                ? "② Mở temp wallet (sẽ bị đóng băng chờ admin)"
-                : check.recommendation === "warn"
-                  ? "② Đã đọc cảnh báo — vẫn mở temp wallet"
-                  : "② Mở temp wallet cho kèo"}
+              {check.recommendation === "warn"
+                ? "② Đã đọc cảnh báo — vẫn mở temp wallet"
+                : "② Mở temp wallet cho kèo"}
             </button>
           )}
         </Panel>

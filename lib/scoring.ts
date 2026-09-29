@@ -9,7 +9,6 @@ export type Report = {
 /**
  * Score the risk of an address based on the reports already on chain.
  * Entirely a fixed formula - run it 10 times, get 10 identical results.
- * The AI does NOT take part in this step.
  */
 export function scoreOnChain(reports: Report[], walletToCheck: string) {
   const related = reports.filter((b) => b.reportedWallet === walletToCheck);
