@@ -4,6 +4,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useState } from "react";
 import type { WithdrawCheckResult } from "@/app/api/withdraw-check/route";
 import { shortenAddress, type Chain } from "@/lib/address";
+import { apiUrl } from "@/lib/api";
 import { SAMPLE_WALLETS, makeLookalike } from "@/lib/paymentSamples";
 import {
   Chip,
@@ -54,7 +55,7 @@ export function Withdraw() {
     setLoading(true);
     clearResult();
     try {
-      const res = await fetch("/api/withdraw-check", {
+      const res = await fetch(apiUrl("/api/withdraw-check"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

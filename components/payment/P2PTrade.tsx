@@ -4,6 +4,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useState } from "react";
 import type { PartyCheck, TradeCheckResult } from "@/app/api/trade-check/route";
 import { shortenAddress, type Chain } from "@/lib/address";
+import { apiUrl } from "@/lib/api";
 import { buildReportMemo } from "@/lib/blacklist";
 import { writeEvidence } from "@/lib/writeChain";
 import { SAMPLE_CHATS, SAMPLE_WALLETS } from "@/lib/paymentSamples";
@@ -96,7 +97,7 @@ export function P2PTrade() {
     setLoading(true);
     resetAll();
     try {
-      const res = await fetch("/api/trade-check", {
+      const res = await fetch(apiUrl("/api/trade-check"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
