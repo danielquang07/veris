@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useState } from "react";
 import { CrossChainDemo } from "@/components/dex/CrossChainDemo";
 import { LiquidityCheck } from "@/components/dex/LiquidityCheck";
@@ -95,12 +94,6 @@ export default function DexPage() {
           </div>
         </section>
 
-        <p className="text-center text-xs text-zinc-500">
-          Công cụ khác cho game:{" "}
-          <Link href="/payments" className="underline">
-            Thanh toán & Chợ tướng (escrow on-chain)
-          </Link>
-        </p>
       </main>
     </div>
   );
