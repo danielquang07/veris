@@ -37,13 +37,19 @@ export function usePoolStats(symbol: PoolSymbol) {
   const { connection } = useConnection();
   const [stats, setStats] = useState<PoolStats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
 
   const refresh = useCallback(async () => {
+    setLoading(true);
     try {
       setStats(await getPoolStats(connection, symbol));
+      setUpdatedAt(new Date());
       setError(null);
     } catch (e) {
-      setError((e as Error).message);
+      setError(`Không đọc được pool (RPC Devnet có thể đang quá tải): ${(e as Error).message}`);
+    } finally {
+      setLoading(false);
     }
   }, [connection, symbol]);
 
@@ -56,7 +62,7 @@ export function usePoolStats(symbol: PoolSymbol) {
     };
   }, [refresh]);
 
-  return { stats: stats?.symbol === symbol ? stats : null, error, refresh };
+  return { stats: stats?.symbol === symbol ? stats : null, error, refresh, loading, updatedAt };
 }
 
 /** SOL, pool token and LP balances of the connected wallet */

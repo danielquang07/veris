@@ -14,7 +14,7 @@ const SAMPLE_SIZES = [0.1, 0.5, 1, 5];
 export function LiquidityCheck() {
   const [symbol, setSymbol] = useState<PoolSymbol>("USDC");
   const [custom, setCustom] = useState("1");
-  const { stats, error, refresh } = usePoolStats(symbol);
+  const { stats, error, refresh, loading, updatedAt } = usePoolStats(symbol);
 
   const customNum = Number(custom.replace(",", ".")) || 0;
   const customImpact = stats ? priceImpact(stats, customNum, true) : null;
@@ -53,9 +53,10 @@ export function LiquidityCheck() {
               pool {stats.poolId.slice(0, 6)}…
             </a>{" "}
             ·{" "}
-            <button type="button" className="underline" onClick={refresh}>
-              làm mới
+            <button type="button" className="underline" onClick={refresh} disabled={loading}>
+              {loading ? "đang đọc…" : "làm mới"}
             </button>
+            {updatedAt && ` · cập nhật lúc ${updatedAt.toLocaleTimeString("vi-VN")} (tự đọc lại mỗi 15 giây)`}
           </p>
 
           <div>
@@ -112,8 +113,8 @@ export function LiquidityCheck() {
             </p>
           </Panel>
 
-          <button type="button" className={secondaryButtonClass} onClick={refresh}>
-            ↻ Đọc lại pool
+          <button type="button" className={secondaryButtonClass} onClick={refresh} disabled={loading}>
+            {loading ? "Đang đọc pool trên chain…" : "↻ Đọc lại pool"}
           </button>
         </>
       )}
