@@ -16,7 +16,7 @@ export function LiquidityCheck() {
   const [custom, setCustom] = useState("1");
   const { stats, error, refresh, loading, updatedAt } = usePoolStats(symbol);
 
-  const customNum = Number(custom.replace(",", ".")) || 0;
+  const customNum = Math.max(0, Number(custom.replace(",", ".")) || 0);
   const customImpact = stats ? priceImpact(stats, customNum, true) : null;
   const maxFor1Pct = stats ? stats.solReserve * 0.01 : 0;
 

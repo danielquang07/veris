@@ -24,7 +24,7 @@ export function SwapToken() {
 
   const inSym = solToToken ? "SOL" : symbol;
   const outSym = solToToken ? symbol : "SOL";
-  const amountNum = Number(amount.replace(",", ".")) || 0;
+  const amountNum = Math.max(0, Number(amount.replace(",", ".")) || 0);
   const quote = stats ? priceImpact(stats, amountNum, solToToken) : null;
   const minOut = quote ? quote.out * (1 - slippageBps / 10_000) : 0;
 

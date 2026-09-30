@@ -30,7 +30,7 @@ export function ProvideLiquidity() {
   const { stats, error: poolError, refresh } = usePoolStats(symbol);
   const { balances, refresh: refreshBalances } = useWalletBalances(symbol, stats?.lpMint);
 
-  const solNum = Number(solAmount.replace(",", ".")) || 0;
+  const solNum = Math.max(0, Number(solAmount.replace(",", ".")) || 0);
   const tokenNeeded = stats ? solNum * stats.price : 0;
   const lpSupply = stats ? Number(stats.lpSupply.toString()) : 0;
   const myLp = balances ? Number(balances.lp.toString()) : 0;
