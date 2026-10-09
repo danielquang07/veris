@@ -131,7 +131,10 @@ class Analyzer:
             max_length=MAX_LEN,
             padding=True,
         )
-        encoded = {k: v.to(self._device) for k, v in encoded.items()}
+        encoded = {
+            k: (v.to(self._device) if hasattr(v, "to") else v)
+            for k, v in encoded.items()
+        }
         logits = self._model(**encoded).logits[0]
         probs = self._torch.softmax(logits, dim=-1)
         return float(probs[self._scam_index].item())

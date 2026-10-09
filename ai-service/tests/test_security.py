@@ -9,44 +9,17 @@ import main
 client = TestClient(main.app)
 
 
-def _ok_result(text="test"):
-    from analyzer import AnalysisResult
-    return AnalysisResult(
-        risk_score=10,
-        label="SAFE",
-        signals=[],
-        legal_refs=[],
-        on_chain_context={"report_count": 0, "recent_tx_count": 0, "wallet_age_days": None},
-        nlp_risk=10,
-        on_chain_risk=0,
-    )
-
-
-def test_rate_limit_analyze(monkeypatch):
-    monkeypatch.setattr(
-        main.analyzer, "analyze", lambda **kwargs: _ok_result(kwargs.get("text", "test"))
-    )
+def test_rate_limit_analyze():
     codes = []
     for _ in range(12):
-        r = client.post(
-            "/analyze",
-            json={"text": "test", "subject_pubkey": None},
-            headers={"x-forwarded-for": "test-ratelimit"},
-        )
+        r = client.post("/analyze", json={"text": "test", "subject_pubkey": None})
         codes.append(r.status_code)
     assert 429 in codes, f"expected 429 in {codes}"
 
 
-def test_body_too_large_analyze(monkeypatch):
-    monkeypatch.setattr(
-        main.analyzer, "analyze", lambda **kwargs: _ok_result(kwargs.get("text", ""))
-    )
+def test_body_too_large_analyze():
     big_text = "a" * 50_000
-    r = client.post(
-        "/analyze",
-        json={"text": big_text},
-        headers={"x-forwarded-for": "test-bodylimit"},
-    )
+    r = client.post("/analyze", json={"text": big_text})
     assert r.status_code == 413
 
 
