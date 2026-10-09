@@ -115,7 +115,7 @@ export function SwapToken() {
               else setMemo(t);
             }}
             speakText={
-              analysis && analysis.risk_score >= 50
+              analysis && analysis.risk_score >= 70
                 ? `Cảnh báo rủi ro ${analysis.risk_score} phần trăm. ${analysis.signals.slice(0, 3).join(". ")}`
                 : null
             }

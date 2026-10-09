@@ -206,7 +206,11 @@ class Analyzer:
                 f"Ví mới ({wallet_age_days} ngày) với {recent_tx_count} giao dịch gần đây"
             )
 
-        final_risk = int(round(NLP_WEIGHT * nlp_risk + ONCHAIN_WEIGHT * on_chain_risk + bonus))
+        if on_chain_risk is not None and on_chain_risk > 0:
+            final_risk = int(round(NLP_WEIGHT * nlp_risk + ONCHAIN_WEIGHT * on_chain_risk + bonus))
+        else:
+            # Không có on-chain → dồn toàn bộ trọng số cho NLP
+            final_risk = int(round(nlp_risk + bonus))
         final_risk = max(0, min(100, final_risk))
 
         label = "SCAM" if final_risk >= 70 else ("SUSPICIOUS" if final_risk >= 40 else "SAFE")
