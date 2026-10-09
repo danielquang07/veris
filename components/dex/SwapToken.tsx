@@ -41,7 +41,6 @@ export function SwapToken() {
     setBusy(true);
     setError(null);
     try {
-      const { tx, expectedOut } = await buildSwapTx(connection, publicKey, symbol, solToToken, amount, slippageBps);
       const decision = await checkBeforeSign({
         tokenMint: DEX_POOLS[symbol].mint,
         txType: "swap",
@@ -52,6 +51,7 @@ export function SwapToken() {
         setBusy(false);
         return;
       }
+      const { tx, expectedOut } = await buildSwapTx(connection, publicKey, symbol, solToToken, amount, slippageBps);
       const res = await sendTx(connection, sendTransaction, tx);
       setLogs((l) => [{ label: `Swap ${amount} ${inSym} → ~${expectedOut} ${outSym}`, link: res.solscanLink }, ...l]);
       await Promise.all([refresh(), refreshBalances()]);
