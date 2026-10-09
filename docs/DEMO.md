@@ -46,17 +46,18 @@ Mục tiêu: chứng minh flow **swap → AI check → cảnh báo → quyết �
 1. Console `uvicorn` hiện request `/analyze` với `risk_score`, `signals`, `legal_refs`.
 2. Giải thích công thức:
    ```
-   final_risk = clamp(0, 100, 0.6 * nlp_risk + 0.4 * on_chain_risk + bonus)
+   final_risk = clamp(0, 100, on_chain_risk > 0 ? (0.6 * nlp_risk + 0.4 * on_chain_risk + bonus) : (nlp_risk + bonus))
    ```
-   - `bonus` +15 nếu địa chỉ bị báo cáo > 3 lần trên `veris_registry`.
-   - `bonus` +10 nếu ví < 7 ngày tuổi với ≥ 5 giao dịch gần đây.
-3. Kết luận: 3 tầng — on-chain `scam_detector` (MLP int8), on-chain `veris_registry`
-   (sổ cái báo cáo), off-chain AI (XLM-R + luật + on-chain context).
+   - `bonus`: cộng điểm từ sổ đen SCAMREG (Solana Memo) và heuristics ví mới (< 7 ngày tuổi với ≥ 5 giao dịch gần đây).
+3. Kết luận: 3 tầng:
+   - On-chain (Solana Memo): Sổ đen `SCAMREG` + Ghi nhận bằng chứng `VERISAI` + Raydium CPMM (roadmap: Anchor programs `scam_detector` MLP int8, `veris_registry`, `veris_market`).
+   - Off-chain AI: FastAPI (XLM-R + luật BLHS + SCAMREG / on-chain context).
+   - Frontend: Next.js 16 (DEX swap guard + /check-scam).
 
 ## Ghi chú kỹ thuật
 
-- `REGISTRY_PROGRAM_ID` hiện trỏ program `veris_registry` đã deploy local / placeholder.
-  Nếu chưa deploy devnet, `report_count` luôn 0 — demo vẫn chạy bằng NLP + legal rules.
+- Tầng on-chain đang chạy sử dụng Solana SPL Memo program (`MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr`) để đọc sổ đen `SCAMREG` và ghi nhận bằng chứng `VERISAI`.
+- Anchor programs `scam_detector` và `veris_registry` đã pass `cargo check`, thuộc roadmap mở rộng on-chain.
 - Rate limit in-memory: 10 req/phút/IP cho `/analyze`. Bấm demo nhanh liên tiếp
   quá 10 lần trong 1 phút sẽ gặp `429` — chờ 60s rồi tiếp tục.
 - Audio upload (`/speech-to-text`) giới hạn 5MB; các endpoint còn lại 16KB.

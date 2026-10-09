@@ -4,40 +4,37 @@ Next.js game + DEX trên Solana devnet, tích hợp lớp AI cảnh báo lừa �
 
 ## Tổng quan — 3 tầng
 
-1. **On-chain (Anchor):** `scam_detector` (MLP int8 `predict([i8;256]) → u8`)
-   + `veris_registry` (sổ cái report scam + AI result log).
-2. **Off-chain AI (FastAPI + XLM-R):** NLP tiếng Việt + legal rules
-   (BLHS) + on-chain context → `risk_score` 0–100.
-3. **Frontend (Next.js):** Swap → guard AI (`useAnalyzeBeforeSign`) →
-   modal cảnh báo → user quyết định ký/hủy.
+1. **On-chain (Solana Memo & Anchor):**
+   - **Đang chạy:** Sổ đen SCAMREG (Memo) + Ghi nhận bằng chứng AI VERISAI (Memo) + Raydium CPMM Pool.
+   - **Roadmap (Anchor đã sẵn sàng):** `scam_detector` (MLP int8 `predict([i8;256]) → u8`) + `veris_registry` (sổ cái báo cáo scam chuyên dụng, đã pass cargo check) + escrow (`veris_market`, chưa deploy).
+2. **Off-chain AI (FastAPI + XLM-R):** NLP tiếng Việt + legal rules (BLHS 2015) + on-chain context (SCAMREG memo / RPC history) → `risk_score` 0–100.
+3. **Frontend (Next.js 16):** Swap & Check Scam → guard AI (`useAnalyzeBeforeSign`, `/check-scam`) → modal cảnh báo → user quyết định ký/hủy hoặc lưu bằng chứng on-chain.
 
 ## Kiến trúc
 
 ```
-                 ┌────────────────────────────┐
-                 │  On-chain (Anchor)         │
-                 │  - scam_detector           │
-                 │    MLP 256→16→1 (int8),    │
-                 │    predict([i8;256]) → u8  │
-                 │  - veris_registry          │
-                 │    sổ cái report + AI log  │
-                 └────────────┬───────────────┘
-                              │ RPC (devnet)
-                 ┌────────────▼───────────────┐
-                 │  Off-chain AI (FastAPI)    │
-                 │  XLM-R vi + legal rules +  │
-                 │  on-chain context → score  │
-                 └────────────┬───────────────┘
-                              │ POST /api/analyze
-                 ┌────────────▼───────────────┐
-                 │  Frontend (Next.js 16)     │
-                 │  Swap → guard → modal warn │
-                 └────────────────────────────┘
+                 ┌──────────────────────────────────────────────┐
+                 │  On-chain Solana (Devnet)                    │
+                 │  - Sổ đen SCAMREG (Solana Memo)              │
+                 │  - Ghi nhận bằng chứng VERISAI (Solana Memo) │
+                 │  - Raydium CPMM Liquidity Pool               │
+                 │  - [Roadmap] scam_detector + veris_registry  │
+                 └──────────────────────┬───────────────────────┘
+                                        │ RPC (devnet)
+                 ┌──────────────────────▼───────────────────────┐
+                 │  Off-chain AI (FastAPI)                      │
+                 │  XLM-R vi + legal rules (BLHS) +             │
+                 │  SCAMREG memo / on-chain context → score     │
+                 └──────────────────────┬───────────────────────┘
+                                        │ POST /api/analyze
+                 ┌──────────────────────▼───────────────────────┐
+                 │  Frontend (Next.js 16)                       │
+                 │  Swap DEX + /check-scam + AI Warning Guard   │
+                 └──────────────────────────────────────────────┘
 ```
 
-- `final_risk = clamp(0, 100, 0.6 * nlp_risk + 0.4 * on_chain_risk + bonus)`
-- `bonus`: +15 nếu địa chỉ bị báo cáo > 3 lần trên `veris_registry`;
-  +10 nếu ví < 7 ngày tuổi với ≥ 5 giao dịch gần đây.
+- `final_risk = clamp(0, 100, on_chain_risk > 0 ? (0.6 * nlp_risk + 0.4 * on_chain_risk + bonus) : (nlp_risk + bonus))`
+- `bonus`: cộng điểm từ sổ đen SCAMREG memo trên Solana và heuristics ví mới.
 
 ## Cách chạy local
 
