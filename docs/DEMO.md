@@ -61,3 +61,12 @@ Mục tiêu: chứng minh flow **swap → AI check → cảnh báo → quyết �
 - Rate limit in-memory: 10 req/phút/IP cho `/analyze`. Bấm demo nhanh liên tiếp
   quá 10 lần trong 1 phút sẽ gặp `429` — chờ 60s rồi tiếp tục.
 - Audio upload (`/speech-to-text`) giới hạn 5MB; các endpoint còn lại 16KB.
+
+## Pre-demo checklist
+
+- [ ] .env.local tồn tại với NEXT_PUBLIC_AI_ENABLED=true
+- [ ] BLACKLIST_SOURCES có ví admin đã ghi SCAMREG
+- [ ] AI Service chạy tại localhost:8000
+- [ ] Model đã cache (lần đầu chạy tải ~1GB)
+- [ ] Web Next.js chạy cùng máy với AI service
+
