@@ -56,3 +56,8 @@ __pycache__/
 
 # stray nested clone created by an accidental `git clone` into the repo
 /veris/
+# Speech (Phase 12 fallback offline)
+*.wav
+*.mp3
+ai-service/scripts/_test_tts.wav
+ai-service/models/

@@ -16,9 +16,13 @@ import httpx
 RPC_URL = os.getenv("SOLANA_RPC_URL", "https://api.devnet.solana.com")
 REQUEST_TIMEOUT = float(os.getenv("SOLANA_RPC_TIMEOUT", "10"))
 
-# veris_registry program id (placeholder; matches the on-chain declare_id!)
+# veris_registry program id (must match declare_id! in
+# anchor/programs/veris_registry/src/lib.rs). Chua deploy devnet ->
+# getProgramAccounts tra ve [] -> report_count=0 (an toan, demo van chay
+# bang NLP + legal rules). Sau khi deploy devnet, set env
+# VERIS_REGISTRY_PROGRAM_ID bang program id that.
 REGISTRY_PROGRAM_ID = os.getenv(
-    "VERIS_REGISTRY_PROGRAM_ID", "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+    "VERIS_REGISTRY_PROGRAM_ID", "9ukmHJeMxEUtzSJf6gsdqgUgcEL8P9LJyeamW2RiSbEE"
 )
 
 

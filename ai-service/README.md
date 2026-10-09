@@ -79,6 +79,37 @@ Response:
 Request: `{ "text": "..." }` → Response: `{ "features": [i8; 256], "dim": 256 }`
 Feed `features` to the on-chain `scam_detector.predict` instruction.
 
+## Speech (STT/TTS)
+
+> `vntts` yêu cầu Python >=3.10,<3.13 nhưng service chạy Python 3.14 →
+> Fallback B-F: backend `speech.py` offline deterministic (WAV sine hợp lệ
+> + marker `VERIS-TTS-v1:<text>` ở cuối để STT roundtrip được trong cùng
+> process). Frontend dùng Web Speech API (`useVoiceInput`, vi-VN) nên
+> không cần server cho voice cơ bản.
+
+### `POST /text-to-speech`
+```bash
+curl -X POST http://localhost:8000/text-to-speech \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Cảnh báo: địa chỉ ví này có dấu hiệu lừa đảo."}' \
+  --output tts.wav
+```
+- Request: `{ "text": "..." }` (1–500 ký tự).
+- Response: `audio/wav` (> 1KB).
+- Audio ngoài (không có marker) → STT trả `502` (frontend fail-open).
+
+### `POST /speech-to-text`
+```bash
+curl -X POST http://localhost:8000/speech-to-text \
+  -F "audio=@tts.wav;type=audio/wav"
+# -> {"text": "Cảnh báo: địa chỉ ví này có dấu hiệu lừa đảo."}
+```
+- Chỉ nhận `audio/wav` (sai định dạng → `415`).
+- Giới hạn 5MB (middleware không áp multipart limit 16KB).
+- Khi có model thật (`vntts`/`sherpa-onnx`/`piper-tts` + file ONNX tiếng
+  Việt trong `ai-service/models/`), thay `_synth_wav`/marker bằng gọi
+  model, giữ nguyên signature + giới hạn.
+
 ## Configuration (env vars)
 
 | Var | Default | Meaning |
@@ -86,7 +117,7 @@ Feed `features` to the on-chain `scam_detector.predict` instruction.
 | `SCAM_MODEL` | `nxtcute/xlm-r-phishing-...-vi` | Primary HF model |
 | `SCAM_MODEL_FALLBACK` | `uitnlp/visobert` | Fallback if primary fails |
 | `SOLANA_RPC_URL` | `https://api.devnet.solana.com` | RPC for on-chain context |
-| `VERIS_REGISTRY_PROGRAM_ID` | placeholder | `veris_registry` program id |
+| `VERIS_REGISTRY_PROGRAM_ID` | `9ukmHJe...SbEE` (must match `declare_id!` in `veris_registry`) | `veris_registry` program id — TODO: replace after devnet deploy; until then `report_count`=0 |
 | `NLP_WEIGHT` / `ONCHAIN_WEIGHT` | `0.6` / `0.4` | Blend weights |
 
 ## Tests

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { buildSwapTx, DEX_POOLS, explainTxError, fromBaseUnits, priceImpact, sendTx, type PoolSymbol } from "@/lib/raydium";
 import { useAnalyzeBeforeSign } from "@/hooks/useAnalyzeBeforeSign";
 import { RiskWarningModal } from "@/components/dex/RiskWarningModal";
+import { VoiceButton } from "@/components/dex/VoiceButton";
 import { ErrorBox, Label, Panel, inputClass, primaryButtonClass, secondaryButtonClass } from "@/components/payment/ui";
 import { PoolPicker, TxList, WalletHint, fmt, usePoolStats, useWalletBalances, type TxLog } from "@/components/dex/shared";
 
@@ -73,6 +74,19 @@ export function SwapToken() {
             Số dư: {solToToken ? fromBaseUnits(balances.sol, 9) : fromBaseUnits(balances.token, 6)} {inSym}
           </p>
         )}
+        <div className="mt-2">
+          <VoiceButton
+            onText={(t) => {
+              const m = t.replace(",", ".").match(/(\d+(?:\.\d+)?)/);
+              if (m) setAmount(m[1]);
+            }}
+            speakText={
+              analysis && analysis.risk_score >= 70
+                ? `Cảnh báo rủi ro ${analysis.risk_score} phần trăm. ${analysis.signals.slice(0, 3).join(". ")}`
+                : null
+            }
+          />
+        </div>
         <div className="my-3 flex justify-center">
           <button type="button" className={secondaryButtonClass} onClick={() => setSolToToken((v) => !v)}>
             ⇅ Đảo chiều
