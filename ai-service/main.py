@@ -72,42 +72,22 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def _lifespan(app: FastAPI):
-    if os.getenv("VERIS_AI_LOAD_MODEL") == "1":
-        _preload_model()
+async def lifespan(app: FastAPI):
+    """Eagerly load the NLP model at startup so the first /analyze request is fast (< 1s)."""
+    if os.getenv("VERIS_AI_SKIP_PRELOAD") != "1":
+        logger.info("Preloading scam analyzer model at startup...")
+        try:
+            analyzer.load_model()
+            logger.info("Model preloaded: %s", analyzer.model_name)
+        except Exception as exc:
+            logger.warning("Model preload failed (will retry lazily): %s", exc)
     yield
 
-app = FastAPI(title="Veris AI Scam Detector", version="0.1.0")
+
+app = FastAPI(title="Veris AI Scam Detector", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(InMemoryRateLimitMiddleware)
 app.add_middleware(BodySizeLimitMiddleware)
-
-
-
-# Single shared analyzer (model loaded lazily). The on-chain risk provider is
-
-# intentionally a stub here: calling scam_detector.predict requires a funded
-
-# keypair + deployed program, which is wired up separately. NLP + legal rules +
-
-# report registry still produce a meaningful score without it.
-
-# Single shared analyzer. The model is loaded eagerly on application startup
-# (see _preload_model), which is only enabled when the environment variable
-# VERIS_AI_LOAD_MODEL=1 is set. By default (and in tests) the analyzer stays
-# lazy so startup stays fast and the fallback is exercised instead.
-
-# Single shared analyzer. The model is loaded eagerly on application startup
-# (see _preload_model), which is only enabled when the environment variable
-# VERIS_AI_LOAD_MODEL=1 is set. By default (and in tests) the analyzer stays
-# lazy so startup stays fast and the fallback is exercised instead.
-
-
-
-def _preload_model():
-    global analyzer
-    analyzer = Analyzer()
-    analyzer.load_model()
 
 
 
