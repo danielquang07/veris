@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import type { RiskAnalysis, SignGuardContext, SignGuardDecision } from "@/lib/risk-types";
 
 const TIMEOUT_MS = 3000;
-const RISK_THRESHOLD = 70;
+const RISK_THRESHOLD = 50;
 
 export function useAnalyzeBeforeSign() {
   const [pending, setPending] = useState<SignGuardContext | null>(null);

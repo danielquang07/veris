@@ -22,6 +22,7 @@ export function SwapToken() {
   const [symbol, setSymbol] = useState<PoolSymbol>("USDC");
   const [solToToken, setSolToToken] = useState(true);
   const [amount, setAmount] = useState("0.1");
+  const [memo, setMemo] = useState("");
   const [slippageBps, setSlippageBps] = useState(50);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +45,7 @@ export function SwapToken() {
       const decision = await checkBeforeSign({
         tokenMint: DEX_POOLS[symbol].mint,
         txType: "swap",
-        text: `swap ${amount} ${inSym} -> ${outSym} via ${symbol} pool`,
+        text: memo.trim() || `swap ${amount} ${inSym} -> ${outSym} via ${symbol} pool`,
         metadata: { symbol, amount, slippageBps },
       });
       if (!decision.proceed) {
@@ -77,14 +78,44 @@ export function SwapToken() {
             Số dư: {solToToken ? fromBaseUnits(balances.sol, 9) : fromBaseUnits(balances.token, 6)} {inSym}
           </p>
         )}
+
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <Label>Ghi chú giao dịch (tùy chọn)</Label>
+            <button
+              type="button"
+              onClick={() => setMemo("Chúc mừng bạn đã trúng thưởng 10 triệu, cung cấp OTP để nhận")}
+              className="text-[11px] text-accent hover:underline flex items-center gap-1"
+            >
+              ⚡ Thử mẫu tin nhắn lừa đảo
+            </button>
+          </div>
+          <input
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+            placeholder="Nhập ghi chú hoặc bấm thử mẫu để test AI Scam Guard..."
+            className={inputClass}
+          />
+          {memo && (
+            <button
+              type="button"
+              onClick={() => setMemo("")}
+              className="mt-1 text-[11px] text-zinc-500 hover:text-zinc-300"
+            >
+              ✕ Xóa ghi chú (quay lại swap thông thường)
+            </button>
+          )}
+        </div>
+
         <div className="mt-2">
           <VoiceButton
             onText={(t) => {
               const m = t.replace(",", ".").match(/(\d+(?:\.\d+)?)/);
               if (m) setAmount(m[1]);
+              else setMemo(t);
             }}
             speakText={
-              analysis && analysis.risk_score >= 70
+              analysis && analysis.risk_score >= 50
                 ? `Cảnh báo rủi ro ${analysis.risk_score} phần trăm. ${analysis.signals.slice(0, 3).join(". ")}`
                 : null
             }
@@ -100,6 +131,7 @@ export function SwapToken() {
           {quote ? fmt(quote.out, 6) : "—"} {outSym}
         </p>
       </Card>
+
 
       <div>
         <Label>Trượt giá chấp nhận</Label>

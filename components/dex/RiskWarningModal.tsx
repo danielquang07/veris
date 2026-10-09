@@ -17,7 +17,7 @@ export function RiskWarningModal({ open, analysis, onContinue, onCancel }: Props
   if (!open) return null;
 
   const score = analysis?.risk_score ?? 0;
-  const isSevere = score >= 85;
+  const isSevere = score >= 70;
   const ctx = analysis?.on_chain_context;
   const hasOnchainReports = ctx && typeof ctx.report_count === "number" && ctx.report_count > 0;
 
