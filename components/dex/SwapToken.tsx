@@ -2,11 +2,14 @@
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useState } from "react";
+import { ArrowUpDown } from "lucide-react";
 import { buildSwapTx, DEX_POOLS, explainTxError, fromBaseUnits, priceImpact, sendTx, type PoolSymbol } from "@/lib/raydium";
 import { useAnalyzeBeforeSign } from "@/hooks/useAnalyzeBeforeSign";
 import { RiskWarningModal } from "@/components/dex/RiskWarningModal";
 import { VoiceButton } from "@/components/dex/VoiceButton";
-import { ErrorBox, Label, Panel, inputClass, primaryButtonClass, secondaryButtonClass } from "@/components/payment/ui";
+import { ErrorBox, Label, Panel, inputClass } from "@/components/payment/ui";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { PoolPicker, TxList, WalletHint, fmt, usePoolStats, useWalletBalances, type TxLog } from "@/components/dex/shared";
 
 const SLIPPAGES = [10, 50, 100];
@@ -63,7 +66,7 @@ export function SwapToken() {
       <WalletHint />
       <PoolPicker value={symbol} onChange={setSymbol} />
 
-      <div className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
+      <Card className="p-4 space-y-3">
         <Label>Bạn bán</Label>
         <div className="flex gap-2">
           <input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" className={inputClass} />
@@ -87,16 +90,16 @@ export function SwapToken() {
             }
           />
         </div>
-        <div className="my-3 flex justify-center">
-          <button type="button" className={secondaryButtonClass} onClick={() => setSolToToken((v) => !v)}>
-            ⇅ Đảo chiều
-          </button>
+        <div className="my-2 flex justify-center">
+          <Button variant="secondary" size="sm" type="button" onClick={() => setSolToToken((v) => !v)}>
+            <ArrowUpDown className="h-4 w-4" /> Đảo chiều
+          </Button>
         </div>
         <Label>Bạn nhận (ước tính)</Label>
         <p className="text-2xl font-semibold">
           {quote ? fmt(quote.out, 6) : "—"} {outSym}
         </p>
-      </div>
+      </Card>
 
       <div>
         <Label>Trượt giá chấp nhận</Label>
@@ -115,26 +118,34 @@ export function SwapToken() {
       </div>
 
       {stats && quote && (
-        <Panel tone={quote.impactPercent > 5 ? "red" : quote.impactPercent > 1 ? "yellow" : "neutral"}>
-          <dl className="grid grid-cols-2 gap-1 text-sm">
-            <dt>Giá pool</dt>
-            <dd className="text-right">1 SOL = {fmt(stats.price, 6)} {symbol}</dd>
-            <dt>Nhận tối thiểu</dt>
-            <dd className="text-right">{fmt(minOut, 6)} {outSym}</dd>
-            <dt>Tác động giá</dt>
-            <dd className="text-right font-medium">{fmt(quote.impactPercent, 2)}%</dd>
-            <dt>Phí pool</dt>
-            <dd className="text-right">{fmt(stats.feePercent, 2)}%</dd>
+        <Card className="p-4 border-zinc-800">
+          <dl className="grid grid-cols-2 gap-1.5 text-sm">
+            <dt className="text-zinc-400">Giá pool</dt>
+            <dd className="text-right font-medium">1 SOL = {fmt(stats.price, 6)} {symbol}</dd>
+            <dt className="text-zinc-400">Nhận tối thiểu</dt>
+            <dd className="text-right font-medium">{fmt(minOut, 6)} {outSym}</dd>
+            <dt className="text-zinc-400">Tác động giá</dt>
+            <dd className={`text-right font-semibold ${quote.impactPercent > 5 ? "text-danger" : quote.impactPercent > 1 ? "text-warning" : "text-safe"}`}>
+              {fmt(quote.impactPercent, 2)}%
+            </dd>
+            <dt className="text-zinc-400">Phí pool</dt>
+            <dd className="text-right font-medium">{fmt(stats.feePercent, 2)}%</dd>
           </dl>
           {quote.impactPercent > 5 && (
-            <p className="mt-2 text-xs">⚠ Pool mỏng so với lệnh này — xem tab Kiểm tra thanh khoản hoặc giảm số lượng.</p>
+            <p className="mt-2 text-xs text-danger">⚠ Pool mỏng so với lệnh này — xem tab Kiểm tra thanh khoản hoặc giảm số lượng.</p>
           )}
-        </Panel>
+        </Card>
       )}
 
-      <button onClick={swap} disabled={busy || !publicKey || amountNum <= 0} className={primaryButtonClass}>
+      <Button
+        variant="primary"
+        size="lg"
+        className="w-full py-3"
+        onClick={swap}
+        disabled={busy || !publicKey || amountNum <= 0}
+      >
         {busy ? "Đang mô phỏng & chờ ký ví..." : `Ký và đổi ${inSym} → ${outSym}`}
-      </button>
+      </Button>
 
       {(error || poolError) && <ErrorBox message={error ?? poolError!} />}
       <TxList logs={logs} />
