@@ -41,7 +41,7 @@ export function parseMemo(memo: string): { target: string; category: string } | 
 
 /**
  * Read the blacklist from chain: SCAMREG memos signed by trusted "source" wallets
- * (e.g. the game admin wallet, the Veris team wallet). No app-side database.
+ * (e.g. the Veris team admin wallet). No app-side database.
  */
 // The public devnet RPC rejects big getParsedTransactions batches ("Too many requests"),
 // so fetch in small chunks and cache the result briefly - every check reads the blacklist.

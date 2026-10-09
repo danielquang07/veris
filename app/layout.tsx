@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Veris",
   description:
-    "Veris DEX × Hào Khí Đại Việt — cầu nối cross-chain, swap token, kiểm tra và cung cấp thanh khoản trên Solana Devnet (Raydium CPMM). UniHackfest 2026",
+    "Veris DEX — swap token có AI cảnh báo lừa đảo tiếng Việt, bằng chứng lưu trên Solana Devnet (Raydium CPMM). UniHackfest 2026",
 };
 
 export const viewport: Viewport = {

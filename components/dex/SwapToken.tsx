@@ -14,7 +14,7 @@ import { PoolPicker, TxList, WalletHint, fmt, usePoolStats, useWalletBalances, t
 
 const SLIPPAGES = [10, 50, 100];
 
-/** Swap SOL <-> test token through the Raydium CPMM pool (same pools as the main game's DEX) */
+/** Swap SOL <-> test token through the Raydium CPMM pool (Raydium devnet test pools) */
 export function SwapToken() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();

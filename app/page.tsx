@@ -61,7 +61,6 @@ export default function DexPage() {
                 <h1 className="text-base sm:text-lg font-bold tracking-tight text-zinc-100">
                   Veris DEX
                 </h1>
-                <span className="text-xs text-zinc-500 font-normal">× Hào Khí Đại Việt</span>
                 <Badge variant="safe" className="hidden sm:inline-flex text-[10px]">
                   Devnet
                 </Badge>
@@ -77,12 +76,6 @@ export default function DexPage() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-colors"
             >
               <ShieldCheck className="h-3.5 w-3.5" /> Kiểm tra lừa đảo
-            </Link>
-            <Link
-              href="/payments"
-              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium transition-colors"
-            >
-              P2P Chợ
             </Link>
             <WalletMultiButton className="!bg-zinc-800 hover:!bg-zinc-700 !text-zinc-100 !text-xs !h-9 !rounded-lg !font-medium !transition-colors" />
           </div>
@@ -204,7 +197,7 @@ export default function DexPage() {
 
       {/* Footer */}
       <footer className="text-xs text-zinc-500 text-center py-8 border-t border-zinc-900 mt-auto">
-        Veris DEX × Hào Khí Đại Việt · Solana Devnet · UniHackfest 2026
+        Veris DEX · Solana Devnet · UniHackfest 2026
       </footer>
     </div>
   );

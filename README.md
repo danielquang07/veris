@@ -1,12 +1,12 @@
-# Veris — Hào Khí Đại Việt + AI Scam Detector
+# Veris — AI Scam Detector trên Solana
 
-Next.js game + DEX trên Solana devnet, tích hợp lớp AI cảnh báo lừa đảo tiếng Việt.
+Next.js DEX trên Solana devnet, tích hợp lớp AI cảnh báo lừa đảo tiếng Việt.
 
 ## Tổng quan — 3 tầng
 
 1. **On-chain (Solana Memo & Anchor):**
    - **Đang chạy:** Sổ đen SCAMREG (Memo) + Ghi nhận bằng chứng AI VERISAI (Memo) + Raydium CPMM Pool.
-   - **Roadmap (Anchor đã sẵn sàng):** `scam_detector` (MLP int8 `predict([i8;256]) → u8`) + `veris_registry` (sổ cái báo cáo scam chuyên dụng, đã pass cargo check) + escrow (`veris_market`, chưa deploy).
+   - **Roadmap (Anchor đã sẵn sàng):** `scam_detector` (MLP int8 `predict([i8;256]) → u8`) + `veris_registry` (sổ cái báo cáo scam chuyên dụng, đã pass cargo check).
 2. **Off-chain AI (FastAPI + XLM-R):** NLP tiếng Việt + legal rules (BLHS 2015) + on-chain context (SCAMREG memo / RPC history) → `risk_score` 0–100.
 3. **Frontend (Next.js 16):** Swap & Check Scam → guard AI (`useAnalyzeBeforeSign`, `/check-scam`) → modal cảnh báo → user quyết định ký/hủy hoặc lưu bằng chứng on-chain.
 

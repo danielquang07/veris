@@ -130,7 +130,7 @@ export function CrossChainDemo() {
       <Panel tone="neutral">
         <p className="text-sm font-medium">Lộ trình làm thật</p>
         <ul className="mt-1 list-disc space-y-0.5 pl-5 text-xs">
-          <li>Tích hợp Wormhole Token Bridge (Solana ↔ Sui) cho SOL và token game.</li>
+          <li>Tích hợp Wormhole Token Bridge (Solana ↔ Sui) cho SOL và token.</li>
           <li>Hiện trạng thái chuyển theo thời gian thực bằng mã giao dịch hai đầu.</li>
           <li>Giới hạn số tiền mỗi lần và cảnh báo phí cầu nối trước khi ký.</li>
         </ul>

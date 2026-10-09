@@ -10,9 +10,8 @@ import {
 import { PublicKey, Transaction, type Connection } from "@solana/web3.js";
 
 /**
- * Raydium CPMM on Solana Devnet - the same program and pools as the DEX of the main
- * Hao Khi Dai Viet project (github.com/duynguyen658/gamedefi, docs/defi.md), so these
- * features plug straight into that DEX.
+ * Raydium CPMM on Solana Devnet: the official devnet CPMM program and two existing
+ * test pools (SOL/USDC-test, SOL/USDT-test), so no program deploy is needed.
  */
 
 export const CPMM_PROGRAM_ID = "DRaycpLY18LhpbydsBWbVJtxpNv9oXPgjRSfpF2bWpYb";

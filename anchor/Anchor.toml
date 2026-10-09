@@ -7,10 +7,10 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-veris_market = "BhG6x6u5PHKwf97eZBEuAnTQhBv6ErEAnDe8YUHCjxG"
+veris_registry = "9ukmHJeMxEUtzSJf6gsdqgUgcEL8P9LJyeamW2RiSbEE"
 
 [programs.devnet]
-veris_market = "BhG6x6u5PHKwf97eZBEuAnTQhBv6ErEAnDe8YUHCjxG"
+veris_registry = "9ukmHJeMxEUtzSJf6gsdqgUgcEL8P9LJyeamW2RiSbEE"
 
 [provider]
 cluster = "devnet"

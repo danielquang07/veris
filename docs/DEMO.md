@@ -50,7 +50,7 @@ Mục tiêu: chứng minh flow **swap → AI check → cảnh báo → quyết �
    ```
    - `bonus`: cộng điểm từ sổ đen SCAMREG (Solana Memo) và heuristics ví mới (< 7 ngày tuổi với ≥ 5 giao dịch gần đây).
 3. Kết luận: 3 tầng:
-   - On-chain (Solana Memo): Sổ đen `SCAMREG` + Ghi nhận bằng chứng `VERISAI` + Raydium CPMM (roadmap: Anchor programs `scam_detector` MLP int8, `veris_registry`, `veris_market`).
+   - On-chain (Solana Memo): Sổ đen `SCAMREG` + Ghi nhận bằng chứng `VERISAI` + Raydium CPMM (roadmap: Anchor programs `scam_detector` MLP int8, `veris_registry`).
    - Off-chain AI: FastAPI (XLM-R + luật BLHS + SCAMREG / on-chain context).
    - Frontend: Next.js 16 (DEX swap guard + /check-scam).
 
