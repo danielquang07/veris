@@ -33,11 +33,11 @@ export function RiskWarningModal({ open, analysis, onContinue, onCancel }: Props
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm animate-fade-in"
       onClick={(e) => e.stopPropagation()}
     >
       <div
-        className="max-w-lg w-full bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl shadow-black/50 animate-scale-in p-6 max-h-[90vh] overflow-y-auto"
+        className="w-full sm:max-w-lg bg-zinc-900 border-t sm:border border-zinc-800 rounded-t-2xl sm:rounded-2xl shadow-2xl shadow-black/50 animate-scale-in p-6 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

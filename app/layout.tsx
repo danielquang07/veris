@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SolanaProvider } from "@/components/WalletProvider";
@@ -19,13 +19,20 @@ export const metadata: Metadata = {
     "Veris DEX × Hào Khí Đại Việt — cầu nối cross-chain, swap token, kiểm tra và cung cấp thanh khoản trên Solana Devnet (Raydium CPMM). UniHackfest 2026",
 };
 
+export const viewport: Viewport = {
+  themeColor: "#09090B",
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="vi"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <head>
+        <meta name="theme-color" content="#09090B" />
+      </head>
+      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100">
         <SolanaProvider>{children}</SolanaProvider>
       </body>
     </html>
