@@ -2,7 +2,9 @@
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useState } from "react";
-import { buildSwapTx, explainTxError, fromBaseUnits, priceImpact, sendTx, type PoolSymbol } from "@/lib/raydium";
+import { buildSwapTx, DEX_POOLS, explainTxError, fromBaseUnits, priceImpact, sendTx, type PoolSymbol } from "@/lib/raydium";
+import { useAnalyzeBeforeSign } from "@/hooks/useAnalyzeBeforeSign";
+import { RiskWarningModal } from "@/components/dex/RiskWarningModal";
 import { ErrorBox, Label, Panel, inputClass, primaryButtonClass, secondaryButtonClass } from "@/components/payment/ui";
 import { PoolPicker, TxList, WalletHint, fmt, usePoolStats, useWalletBalances, type TxLog } from "@/components/dex/shared";
 
@@ -12,6 +14,7 @@ const SLIPPAGES = [10, 50, 100];
 export function SwapToken() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const { checkBeforeSign, pending, analysis, userContinue, userCancel } = useAnalyzeBeforeSign();
   const [symbol, setSymbol] = useState<PoolSymbol>("USDC");
   const [solToToken, setSolToToken] = useState(true);
   const [amount, setAmount] = useState("0.1");
@@ -34,6 +37,16 @@ export function SwapToken() {
     setError(null);
     try {
       const { tx, expectedOut } = await buildSwapTx(connection, publicKey, symbol, solToToken, amount, slippageBps);
+      const decision = await checkBeforeSign({
+        tokenMint: DEX_POOLS[symbol].mint,
+        txType: "swap",
+        text: `swap ${amount} ${inSym} -> ${outSym} via ${symbol} pool`,
+        metadata: { symbol, amount, slippageBps },
+      });
+      if (!decision.proceed) {
+        setBusy(false);
+        return;
+      }
       const res = await sendTx(connection, sendTransaction, tx);
       setLogs((l) => [{ label: `Swap ${amount} ${inSym} → ~${expectedOut} ${outSym}`, link: res.solscanLink }, ...l]);
       await Promise.all([refresh(), refreshBalances()]);
@@ -111,6 +124,7 @@ export function SwapToken() {
 
       {(error || poolError) && <ErrorBox message={error ?? poolError!} />}
       <TxList logs={logs} />
+      <RiskWarningModal open={pending !== null} analysis={analysis} onContinue={userContinue} onCancel={userCancel} />
     </div>
   );
 }
