@@ -43,3 +43,11 @@ next-env.d.ts
 
 wallet.json
 keypair.json
+
+# AI scam detector module
+offchain/.venv/
+ai-service/.venv/
+offchain/last_run.log
+ai-service/last_run.log
+offchain/weights_float.npz
+__pycache__/
