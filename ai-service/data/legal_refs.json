@@ -1,0 +1,58 @@
+[
+  {
+    "pattern": "trúng thưởng|trung thuong|nhận quà|nhan qua|nhận thưởng|nhan thuong|quà tặng|qua tang",
+    "dieu": "174",
+    "khoan": "1",
+    "van_ban": "BLHS 2015",
+    "noi_dung": "Người nào bằng thủ đoạn gian dối chiếm đoạt tài sản của người khác trị giá từ 2.000.000 đồng đến dưới 50.000.000 đồng hoặc dưới 2.000.000 đồng nhưng gây hậu quả nghiêm trọng, thì bị phạt cải tạo không giam giữ đến 3 năm hoặc phạt tù từ 6 tháng đến 3 năm.",
+    "link": "https://vbpl.vn/TW/Pages/vbpqen-toanvan.aspx?ItemID=10196"
+  },
+  {
+    "pattern": "otp|xác minh tài khoản|xac minh tai khoan|xác thực|xac thuc|mã xác nhận|ma xac nhan",
+    "dieu": "174",
+    "khoan": "1",
+    "van_ban": "BLHS 2015",
+    "noi_dung": "Chiếm đoạt thông tin xác thực (OTP) để thực hiện giao dịch trái phép được xem là thủ đoạn gian dối nhằm chiếm đoạt tài sản.",
+    "link": "https://vbpl.vn/TW/Pages/vbpqen-toanvan.aspx?ItemID=10196"
+  },
+  {
+    "pattern": "chuyển tiền gấp|chuyen tien gap|chuyển khoản gấp|chuyen khoan gap|phí xử lý|phi xu ly|phí thủ tục|phi thu tuc",
+    "dieu": "174",
+    "khoan": "2",
+    "van_ban": "BLHS 2015",
+    "noi_dung": "Thủ đoạn yêu cầu nạn nhân chuyển tiền/phí trước để nhận giải thưởng hoặc xử lý hồ sơ là dấu hiệu phổ biến của lừa đảo chiếm đoạt tài sản.",
+    "link": "https://vbpl.vn/TW/Pages/vbpqen-toanvan.aspx?ItemID=10196"
+  },
+  {
+    "pattern": "tài khoản bị khóa|tai khoan bi khoa|khóa thẻ|khoa the|vô hiệu hóa|vo hieu hoa|cảnh báo bảo mật|canh bao bao mat",
+    "dieu": "289",
+    "khoan": "1",
+    "van_ban": "BLHS 2015",
+    "noi_dung": "Sử dụng mạng máy tính, mạng viễn thông, mạng Internet hoặc thiết bị số để thực hiện hành vi xâm nhập trái phép, chiếm quyền điều khiển, phá hoại... có thể cấu thành tội xâm nhập trái phép vào mạng máy tính, mạng viễn thông hoặc thiết bị số của người khác.",
+    "link": "https://vbpl.vn/TW/Pages/vbpqen-toanvan.aspx?ItemID=10196"
+  },
+  {
+    "pattern": "đầu tư|dau tu|lợi nhuận cao|loi nhuan cao|lãi suất|bảo hiểm|bảo hiểm nhân thọ|cổ phiếu|coin|tiền ảo",
+    "dieu": "174",
+    "khoan": "3",
+    "van_ban": "BLHS 2015",
+    "noi_dung": "Các lời mời đầu tư hứa hẹn lợi nhuận cao, khởi nghiệp đa cấp hoặc tiền ảo không rõ nguồn gốc thường là hình thức lừa đảo chiếm đoạt tài sản có tổ chức.",
+    "link": "https://vbpl.vn/TW/Pages/vbpqen-toanvan.aspx?ItemID=10196"
+  },
+  {
+    "pattern": "cung cấp|cccd|cmnd|số tài khoản|so tai khoan|mật khẩu|mat khau|thông tin cá nhân|thong tin ca nhan",
+    "dieu": "288",
+    "khoan": "1",
+    "van_ban": "BLHS 2015",
+    "noi_dung": "Thu thập trái phép thông tin cá nhân (CCCD, số tài khoản, mật khẩu) có thể cấu thành tội thu thập, lưu trữ, sử dụng, công khai trái phép thông tin thuộc bí mật đời tư của người khác.",
+    "link": "https://vbpl.vn/TW/Pages/vbpqen-toanvan.aspx?ItemID=10196"
+  },
+  {
+    "pattern": "công an|cảnh sát|vks|viện kiểm sát|toà án|ngân hàng nhà nước|nhóm điều tra|dieu tra|lệnh bắt|lenh bat",
+    "dieu": "174",
+    "khoan": "1",
+    "van_ban": "BLHS 2015",
+    "noi_dung": "Giả danh cơ quan chức năng (công an, ngân hàng, viện kiểm sát) để yêu cầu nạn nhân chuyển tiền 'về tài khoản tạm giữ' là thủ đoạn lừa đảo nghiêm trọng.",
+    "link": "https://vbpl.vn/TW/Pages/vbpqen-toanvan.aspx?ItemID=10196"
+  }
+]
