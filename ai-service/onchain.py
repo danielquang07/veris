@@ -14,7 +14,7 @@ from typing import Optional
 import httpx
 
 RPC_URL = os.getenv("SOLANA_RPC_URL", "https://api.devnet.solana.com")
-REQUEST_TIMEOUT = float(os.getenv("SOLANA_RPC_TIMEOUT", "10"))
+REQUEST_TIMEOUT = float(os.getenv("SOLANA_RPC_TIMEOUT", "3"))
 
 # veris_registry program id (must match declare_id! in
 # anchor/programs/veris_registry/src/lib.rs). Chua deploy devnet ->

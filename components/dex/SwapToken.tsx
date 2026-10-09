@@ -18,7 +18,7 @@ const SLIPPAGES = [10, 50, 100];
 export function SwapToken() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
-  const { checkBeforeSign, pending, analysis, userContinue, userCancel } = useAnalyzeBeforeSign();
+  const { checkBeforeSign, pending, analysis, loading, userContinue, userCancel } = useAnalyzeBeforeSign();
   const [symbol, setSymbol] = useState<PoolSymbol>("USDC");
   const [solToToken, setSolToToken] = useState(true);
   const [amount, setAmount] = useState("0.1");
@@ -174,9 +174,9 @@ export function SwapToken() {
         size="lg"
         className="w-full py-3"
         onClick={swap}
-        disabled={busy || !publicKey || amountNum <= 0}
+        disabled={busy || loading || !publicKey || amountNum <= 0}
       >
-        {busy ? "Đang mô phỏng & chờ ký ví..." : `Ký và đổi ${inSym} → ${outSym}`}
+        {loading ? "Đang kiểm tra rủi ro..." : busy ? "Đang mô phỏng & chờ ký ví..." : `Ký và đổi ${inSym} → ${outSym}`}
       </Button>
 
       {(error || poolError) && <ErrorBox message={error ?? poolError!} />}

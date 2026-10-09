@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import type { RiskAnalysis, SignGuardContext, SignGuardDecision } from "@/lib/risk-types";
 
-const TIMEOUT_MS = 3000;
+const TIMEOUT_MS = 10000;
 const RISK_THRESHOLD = 70;
 
 export function useAnalyzeBeforeSign() {
