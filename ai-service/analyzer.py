@@ -31,7 +31,7 @@ NLP_WEIGHT = float(os.getenv("NLP_WEIGHT", "0.6"))
 ONCHAIN_WEIGHT = float(os.getenv("ONCHAIN_WEIGHT", "0.4"))
 
 # Contextual bonus thresholds
-REPORT_BONUS_THRESHOLD = 3          # report_count > this -> +bonus
+REPORT_BONUS_THRESHOLD = 1          # report_count >= this -> +bonus
 REPORT_BONUS = int(os.getenv("REPORT_BONUS", "15"))
 NEW_WALLET_DAYS = 7                 # wallet younger than this + fan-in -> +bonus
 NEW_WALLET_BONUS = int(os.getenv("NEW_WALLET_BONUS", "10"))
@@ -192,7 +192,7 @@ class Analyzer:
                 on_chain_risk = 0
 
         bonus = 0
-        if report_count > REPORT_BONUS_THRESHOLD:
+        if report_count >= REPORT_BONUS_THRESHOLD:
             bonus += REPORT_BONUS
             signals.append(f"Địa chỉ bị báo cáo {report_count} lần trên veris_registry")
         if (
