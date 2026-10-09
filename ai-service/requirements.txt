@@ -1,0 +1,10 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+httpx>=0.27
+transformers>=4.40
+torch>=2.2
+solana>=0.32
+solders>=0.21
+pytest>=8.0
+numpy>=1.26

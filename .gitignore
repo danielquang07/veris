@@ -50,4 +50,9 @@ ai-service/.venv/
 offchain/last_run.log
 ai-service/last_run.log
 offchain/weights_float.npz
+offchain/*.log
+ai-service/*.log
 __pycache__/
+
+# stray nested clone created by an accidental `git clone` into the repo
+/veris/
