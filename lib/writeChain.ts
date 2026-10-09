@@ -42,3 +42,25 @@ export async function writeEvidence(
     solscanLink: `https://solscan.io/tx/${signature}?cluster=devnet`,
   };
 }
+
+export async function buildEvidenceTx(
+  connection: Connection,
+  payer: PublicKey,
+  memo: string
+): Promise<Transaction> {
+  const ix = createMemoInstruction(payer, memo);
+  const tx = new Transaction().add(ix);
+  tx.feePayer = payer;
+  tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  return tx;
+}
+
+export function buildAiEvidenceMemo(result: {
+  risk_score: number;
+  label: string;
+  signals?: string[];
+}): string {
+  const json = JSON.stringify(result);
+  const hashShort = Buffer.from(json).toString("base64").slice(0, 16);
+  return `VERISAI|v1|score=${result.risk_score}|label=${result.label}|hash=${hashShort}`;
+}

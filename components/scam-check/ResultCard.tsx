@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import {
   ShieldAlert,
   AlertTriangle,
@@ -10,10 +11,13 @@ import {
   ExternalLink,
   Volume2,
   VolumeX,
+  FileCheck,
+  Loader2,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { buildEvidenceTx, buildAiEvidenceMemo } from "@/lib/writeChain";
 import type { RiskAnalysis } from "@/lib/risk-types";
 
 type Props = {
@@ -21,7 +25,13 @@ type Props = {
 };
 
 export function ResultCard({ result }: Props) {
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
   const [speaking, setSpeaking] = useState(false);
+  const [savingEvidence, setSavingEvidence] = useState(false);
+  const [evidenceLink, setEvidenceLink] = useState<string | null>(null);
+  const [evidenceError, setEvidenceError] = useState<string | null>(null);
+
   const score = result.risk_score;
   const ctx = result.on_chain_context;
   const hasOnchainReports = Boolean(ctx && typeof ctx.report_count === "number" && ctx.report_count > 0);
@@ -96,6 +106,28 @@ export function ResultCard({ result }: Props) {
     synth.speak(utter);
   };
 
+  const handleSaveEvidence = async () => {
+    if (!publicKey) {
+      alert("Vui lòng kết nối ví Phantom (Devnet) để lưu bằng chứng lên Solana.");
+      return;
+    }
+    setSavingEvidence(true);
+    setEvidenceError(null);
+    try {
+      const memo = buildAiEvidenceMemo(result);
+      const tx = await buildEvidenceTx(connection, publicKey, memo);
+      const sig = await sendTransaction(tx, connection);
+      const blockhash = await connection.getLatestBlockhash();
+      await connection.confirmTransaction({ signature: sig, ...blockhash }, "confirmed");
+      setEvidenceLink(`https://solscan.io/tx/${sig}?cluster=devnet`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setEvidenceError(msg || "Không thể lưu bằng chứng lên Solana.");
+    } finally {
+      setSavingEvidence(false);
+    }
+  };
+
   return (
     <Card className="border-zinc-800 bg-zinc-900/90 p-5 sm:p-6 space-y-5 animate-fade-in shadow-xl">
       {/* Header status */}
@@ -122,27 +154,64 @@ export function ResultCard({ result }: Props) {
         </div>
       </div>
 
-      {/* Voice Readout Button */}
-      <div className="flex items-center justify-between bg-zinc-950/60 border border-zinc-800/60 rounded-lg px-3 py-2">
-        <span className="text-xs text-zinc-400">Trợ lý đọc thông báo kết quả:</span>
-        <Button
-          variant="secondary"
-          size="sm"
-          type="button"
-          onClick={handleSpeak}
-          className="text-xs flex items-center gap-1.5"
-        >
-          {speaking ? (
-            <>
-              <VolumeX className="h-3.5 w-3.5 text-danger" /> Dừng đọc
-            </>
-          ) : (
-            <>
-              <Volume2 className="h-3.5 w-3.5 text-accent" /> Nghe cảnh báo
-            </>
-          )}
-        </Button>
+      {/* Voice Readout & Evidence Save Actions */}
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-3">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            type="button"
+            onClick={handleSpeak}
+            className="text-xs flex items-center gap-1.5"
+          >
+            {speaking ? (
+              <>
+                <VolumeX className="h-3.5 w-3.5 text-danger" /> Dừng đọc
+              </>
+            ) : (
+              <>
+                <Volume2 className="h-3.5 w-3.5 text-accent" /> Nghe cảnh báo
+              </>
+            )}
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            type="button"
+            onClick={handleSaveEvidence}
+            disabled={savingEvidence}
+            className="text-xs flex items-center gap-1.5"
+          >
+            {savingEvidence ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Đang ghi memo...
+              </>
+            ) : (
+              <>
+                <FileCheck className="h-3.5 w-3.5 text-accent" /> Lưu bằng chứng lên Solana
+              </>
+            )}
+          </Button>
+        </div>
+
+        {evidenceLink && (
+          <a
+            href={evidenceLink}
+            target="_blank"
+            rel="noreferrer"
+            className="text-xs text-emerald-400 underline flex items-center gap-1 font-medium"
+          >
+            Đã lưu on-chain (Solscan) <ExternalLink className="h-3 w-3" />
+          </a>
+        )}
       </div>
+
+      {evidenceError && (
+        <p className="text-xs text-danger bg-red-950/30 border border-red-900/40 p-2 rounded">
+          ⚠ {evidenceError}
+        </p>
+      )}
 
       {/* Signals */}
       <div>

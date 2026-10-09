@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
-import { ShieldAlert, AlertTriangle, CircleAlert, ExternalLink } from "lucide-react";
+import React, { useState } from "react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { ShieldAlert, AlertTriangle, CircleAlert, ExternalLink, FileCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { buildEvidenceTx, buildAiEvidenceMemo } from "@/lib/writeChain";
 import type { RiskAnalysis } from "@/lib/risk-types";
 
 type Props = {
@@ -14,6 +16,11 @@ type Props = {
 };
 
 export function RiskWarningModal({ open, analysis, onContinue, onCancel }: Props) {
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
+  const [savingEvidence, setSavingEvidence] = useState(false);
+  const [evidenceLink, setEvidenceLink] = useState<string | null>(null);
+
   if (!open) return null;
 
   const score = analysis?.risk_score ?? 0;
@@ -29,6 +36,26 @@ export function RiskWarningModal({ open, analysis, onContinue, onCancel }: Props
       if (!confirmed) return;
     }
     onContinue();
+  };
+
+  const handleSaveEvidence = async () => {
+    if (!publicKey || !analysis) {
+      alert("Vui lòng kết nối ví để lưu bằng chứng lên Solana devnet.");
+      return;
+    }
+    setSavingEvidence(true);
+    try {
+      const memo = buildAiEvidenceMemo(analysis);
+      const tx = await buildEvidenceTx(connection, publicKey, memo);
+      const sig = await sendTransaction(tx, connection);
+      const blockhash = await connection.getLatestBlockhash();
+      await connection.confirmTransaction({ signature: sig, ...blockhash }, "confirmed");
+      setEvidenceLink(`https://solscan.io/tx/${sig}?cluster=devnet`);
+    } catch (err: unknown) {
+      alert("Lỗi lưu bằng chứng: " + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setSavingEvidence(false);
+    }
   };
 
   return (
@@ -154,6 +181,33 @@ export function RiskWarningModal({ open, analysis, onContinue, onCancel }: Props
           <Button variant="secondary" size="lg" className="w-full" onClick={onCancel}>
             Hủy giao dịch
           </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-xs text-zinc-400 hover:text-zinc-200 flex items-center justify-center gap-1.5"
+            onClick={handleSaveEvidence}
+            disabled={savingEvidence}
+          >
+            {savingEvidence ? (
+              <>
+                <Loader2 className="h-3 w-3 animate-spin" /> Đang ghi bằng chứng lên Solana...
+              </>
+            ) : (
+              <>
+                <FileCheck className="h-3 w-3 text-accent" /> Lưu bằng chứng lên Solana (Memo)
+              </>
+            )}
+          </Button>
+
+          {evidenceLink && (
+            <p className="text-center text-xs text-emerald-400">
+              <a href={evidenceLink} target="_blank" rel="noreferrer" className="underline inline-flex items-center gap-1">
+                Xem bằng chứng trên Solscan <ExternalLink className="h-3 w-3" />
+              </a>
+            </p>
+          )}
+
           <Button
             variant="ghost"
             size="sm"
