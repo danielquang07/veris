@@ -44,11 +44,14 @@ pip install -r requirements.txt
 > README about the httpx-only JSON-RPC fallback.
 
 ## Run
-
-From the repo root:
-
+ 
 ```bash
-uvicorn ai-service.main:app --reload --port 8000
+# Từ repo root (khuyến nghị):
+ai-service\.venv\Scripts\python.exe -X utf8 -m uvicorn ai-service.main:app --port 8000
+
+# Hoặc từ trong ai-service/:
+# cd ai-service
+# ..\ai-service\.venv\Scripts\python.exe -X utf8 -m uvicorn main:app --port 8000
 ```
 
 ## Endpoints

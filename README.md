@@ -50,7 +50,10 @@ cargo check --manifest-path anchor/Cargo.toml -p scam_detector
 cargo check --manifest-path anchor/Cargo.toml -p veris_registry
 
 # 3. AI service
+# Từ repo root (khuyến nghị):
 ai-service\.venv\Scripts\python.exe -X utf8 -m uvicorn ai-service.main:app --port 8000
+# Hoặc từ thư mục ai-service/:
+# cd ai-service && ..\ai-service\.venv\Scripts\python.exe -X utf8 -m uvicorn main:app --port 8000
 
 # 4. Frontend dev
 npm run dev

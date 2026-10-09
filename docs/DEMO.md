@@ -6,8 +6,12 @@ Mục tiêu: chứng minh flow **swap → AI check → cảnh báo → quyết �
 
 1. AI service chạy local:
    ```bash
-   cd D:\Veris-Dex\veris
+   # Từ repo root (khuyến nghị):
    ai-service\.venv\Scripts\python.exe -X utf8 -m uvicorn ai-service.main:app --port 8000
+
+   # Hoặc từ trong ai-service/:
+   # cd ai-service
+   # ..\ai-service\.venv\Scripts\python.exe -X utf8 -m uvicorn main:app --port 8000
    ```
    Verify: mở `http://localhost:8000/health` → `{"status":"ok",...}`.
 2. Frontend chạy local:
