@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { VoiceInputField } from "@/components/ui/VoiceInputField";
 import { ResultCard } from "@/components/scam-check/ResultCard";
+import { extractAddresses } from "@/lib/address";
 import type { RiskAnalysis } from "@/lib/risk-types";
 
 const BASE58_REGEX = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
@@ -49,9 +50,12 @@ export default function CheckScamPage() {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
+      // Text mode: a Solana address pasted inside the message is checked against the chain too
+      const walletInText =
+        mode === "text" ? extractAddresses(input).find((a) => a.chain === "sol")?.address ?? null : null;
       const payload = {
         text: mode === "text" ? input.trim() : "",
-        subject_pubkey: mode === "wallet" ? input.trim() : null,
+        subject_pubkey: mode === "wallet" ? input.trim() : walletInText,
         tx_type: "other",
       };
 

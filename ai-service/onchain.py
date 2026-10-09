@@ -87,7 +87,9 @@ def get_wallet_context(address: str, recent_limit: int = 20) -> tuple[int, Optio
         )
         recent_tx_count = len(sigs)
         wallet_age_days: Optional[int] = None
-        if sigs:
+        # A full page means older history exists, so the oldest signature here is NOT the
+        # wallet's first tx. Busy addresses (e.g. a token mint) would wrongly look 0 days old.
+        if sigs and len(sigs) < recent_limit:
             oldest = sigs[-1]
             block_time = oldest.get("blockTime")
             if block_time:

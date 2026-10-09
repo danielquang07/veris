@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { buildEvidenceTx, buildAiEvidenceMemo } from "@/lib/writeChain";
+import { loadVoices, NO_VIETNAMESE_VOICE_MESSAGE, pickVietnameseVoice } from "@/hooks/useVoiceInput";
 import type { RiskAnalysis } from "@/lib/risk-types";
 
 type Props = {
@@ -75,7 +76,7 @@ export function ResultCard({ result }: Props) {
 
   const tier = getTier();
 
-  const handleSpeak = () => {
+  const handleSpeak = async () => {
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       alert("Trình duyệt không hỗ trợ Web Speech API.");
       return;
@@ -94,11 +95,15 @@ export function ResultCard({ result }: Props) {
         : "Không phát hiện dấu hiệu lừa đảo rõ ràng.";
     const textToRead = `Kết quả phân tích: ${tier.title}, điểm rủi ro ${score} trên 100. ${signalsSummary}`;
 
+    await loadVoices(synth);
+    const viVoice = pickVietnameseVoice(synth);
+    if (!viVoice) {
+      alert(NO_VIETNAMESE_VOICE_MESSAGE);
+      return;
+    }
     const utter = new SpeechSynthesisUtterance(textToRead);
     utter.lang = "vi-VN";
-    const voices = synth.getVoices();
-    const viVoice = voices.find((v) => v.lang.toLowerCase().startsWith("vi"));
-    if (viVoice) utter.voice = viVoice;
+    utter.voice = viVoice;
 
     utter.onend = () => setSpeaking(false);
     utter.onerror = () => setSpeaking(false);
@@ -114,7 +119,7 @@ export function ResultCard({ result }: Props) {
     setSavingEvidence(true);
     setEvidenceError(null);
     try {
-      const memo = buildAiEvidenceMemo(result);
+      const memo = await buildAiEvidenceMemo(result);
       const tx = await buildEvidenceTx(connection, publicKey, memo);
       const sig = await sendTransaction(tx, connection);
       const blockhash = await connection.getLatestBlockhash();

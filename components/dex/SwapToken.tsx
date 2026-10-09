@@ -44,7 +44,9 @@ export function SwapToken() {
       const decision = await checkBeforeSign({
         tokenMint: DEX_POOLS[symbol].mint,
         txType: "swap",
-        text: memo.trim() || `swap ${amount} ${inSym} -> ${outSym} via ${symbol} pool`,
+        // Only the user's own note is scored. The model rates the auto-generated English
+        // "swap 0.1 SOL -> USDC" line as ~97% scam, so every plain swap would trigger the modal.
+        text: memo.trim(),
         metadata: { symbol, amount, slippageBps },
       });
       if (!decision.proceed) {

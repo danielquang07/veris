@@ -55,12 +55,17 @@ export async function buildEvidenceTx(
   return tx;
 }
 
-export function buildAiEvidenceMemo(result: {
+/**
+ * Build the VERISAI memo: score + label in clear text, plus the SHA-256 of the full AI result
+ * (JSON). Anyone holding the off-chain result can re-hash it and compare with the chain.
+ */
+export async function buildAiEvidenceMemo(result: {
   risk_score: number;
   label: string;
   signals?: string[];
-}): string {
+}): Promise<string> {
   const json = JSON.stringify(result);
-  const hashShort = Buffer.from(json).toString("base64").slice(0, 16);
-  return `VERISAI|v1|score=${result.risk_score}|label=${result.label}|hash=${hashShort}`;
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(json));
+  const hash = Buffer.from(digest).toString("hex");
+  return `VERISAI|v1|score=${result.risk_score}|label=${result.label}|sha256=${hash}`;
 }

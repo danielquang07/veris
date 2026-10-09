@@ -20,6 +20,12 @@ export function RiskWarningModal({ open, analysis, onContinue, onCancel }: Props
   const { publicKey, sendTransaction } = useWallet();
   const [savingEvidence, setSavingEvidence] = useState(false);
   const [evidenceLink, setEvidenceLink] = useState<string | null>(null);
+  // The modal stays mounted between swaps: drop the previous evidence link when a new analysis arrives
+  const [linkFor, setLinkFor] = useState(analysis);
+  if (analysis !== linkFor) {
+    setLinkFor(analysis);
+    setEvidenceLink(null);
+  }
 
   if (!open) return null;
 
@@ -45,7 +51,7 @@ export function RiskWarningModal({ open, analysis, onContinue, onCancel }: Props
     }
     setSavingEvidence(true);
     try {
-      const memo = buildAiEvidenceMemo(analysis);
+      const memo = await buildAiEvidenceMemo(analysis);
       const tx = await buildEvidenceTx(connection, publicKey, memo);
       const sig = await sendTransaction(tx, connection);
       const blockhash = await connection.getLatestBlockhash();
