@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { LEVEL_UI } from "@/components/shield/TokenReportCard";
+import { LEVEL_UI, tokenDisplayName } from "@/components/shield/TokenReportCard";
 import { isValidAddress, shortenAddress } from "@/lib/address";
 import { explainTxError, sendTx } from "@/lib/raydium";
 import { approveInstruction, revokeInstruction } from "@/lib/tokenInstructions";
@@ -106,23 +106,23 @@ export function WalletScan({ presetOwner = "", showDemo = false }: { presetOwner
 
       {result && (
         <>
-          <p className="text-sm text-zinc-300">
-            Số dư SOL: <b>{result.solBalance.toLocaleString("vi-VN", { maximumFractionDigits: 4 })} SOL</b>
-            <span className="text-zinc-500"> · SOL là đồng gốc, không tính vào token bên dưới</span>
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
             {[
-              ["Loại token", result.holdings.length, "text-zinc-100"],
-              ["Quyền rút đang mở", result.approvals, result.approvals ? "text-red-400" : "text-emerald-400"],
-              ["Token nguy hiểm", result.dangerousTokens, result.dangerousTokens ? "text-red-400" : "text-emerald-400"],
-              ["Token bị khóa", result.frozen, result.frozen ? "text-red-400" : "text-emerald-400"],
-            ].map(([label, n, color]) => (
+              [`${result.solBalance.toLocaleString("vi-VN", { maximumFractionDigits: 4 })}`, "SOL trong ví", "text-zinc-100"],
+              [result.holdings.length, "Loại token khác", "text-zinc-100"],
+              [result.approvals, "Quyền rút đang mở", result.approvals ? "text-red-400" : "text-emerald-400"],
+              [result.dangerousTokens, "Token nguy hiểm", result.dangerousTokens ? "text-red-400" : "text-emerald-400"],
+              [result.frozen, "Token bị khóa", result.frozen ? "text-red-400" : "text-emerald-400"],
+            ].map(([n, label, color]) => (
               <Card key={label as string} className="p-3">
-                <p className={`text-2xl font-bold ${color}`}>{n as number}</p>
+                <p className={`text-2xl font-bold ${color}`}>{n}</p>
                 <p className="text-[11px] text-zinc-400">{label as string}</p>
               </Card>
             ))}
           </div>
+          <p className="text-[11px] text-zinc-500 -mt-2">
+            Đọc thẳng trên Solana: token đã ẩn trong Phantom vẫn hiện ở đây, vì ẩn chỉ là giấu khỏi màn hình ví.
+          </p>
 
           <div className="space-y-3">
             {result.holdings.length === 0 && <p className="text-sm text-zinc-400">Ví này chưa giữ token nào.</p>}
@@ -133,7 +133,7 @@ export function WalletScan({ presetOwner = "", showDemo = false }: { presetOwner
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-zinc-100">{h.symbol ?? "Token không tên"}</span>
+                        <span className="font-semibold text-zinc-100">{tokenDisplayName(h.mint, h.symbol)}</span>
                         {ui && <Badge variant={ui.badge}>{ui.title}</Badge>}
                       </div>
                       <p className="text-[11px] text-zinc-500 font-mono break-all">{h.mint}</p>

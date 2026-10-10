@@ -8,7 +8,20 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { buildEvidenceTx } from "@/lib/writeChain";
+import { DEX_POOLS } from "@/lib/raydium";
 import type { CheckStatus, RiskLevel, TokenRiskReport } from "@/lib/tokenRisk";
+
+// Test tokens of this DEX have no on-chain name; label them so users recognise what they swapped into
+const DEX_TOKEN_NAMES: Record<string, string> = {
+  [DEX_POOLS.USDC.mint]: "USDC thử của sàn",
+  [DEX_POOLS.USDT.mint]: "USDT thử của sàn",
+};
+
+export function tokenDisplayName(mint: string, symbol: string | null) {
+  const known = DEX_TOKEN_NAMES[mint];
+  if (symbol) return known ? `${symbol} (${known})` : symbol;
+  return known ? `${known}, không có tên trên chain` : "Token không tên";
+}
 
 export const LEVEL_UI: Record<RiskLevel, { title: string; badge: "danger" | "warning" | "safe"; text: string }> = {
   danger: { title: "Nguy hiểm", badge: "danger", text: "text-red-400" },
@@ -80,7 +93,7 @@ export function TokenReportCard({ report }: { report: TokenRiskReport }) {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h3 className={`text-lg font-bold ${ui.text}`}>{ui.title}</h3>
-            <Badge variant={ui.badge}>{report.symbol ?? "Token không tên"}</Badge>
+            <Badge variant={ui.badge}>{tokenDisplayName(report.mint, report.symbol)}</Badge>
           </div>
           <p className="text-sm text-zinc-300 mt-1">{report.summary}</p>
           <p className="text-xs text-zinc-500 font-mono mt-1 break-all">{report.mint}</p>
