@@ -105,9 +105,13 @@ export function WalletScan() {
 
       {result && (
         <>
+          <p className="text-sm text-zinc-300">
+            Số dư SOL: <b>{result.solBalance.toLocaleString("vi-VN", { maximumFractionDigits: 4 })} SOL</b>
+            <span className="text-zinc-500"> · SOL là đồng gốc, không tính vào token bên dưới</span>
+          </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              ["Token đang giữ", result.holdings.length, "text-zinc-100"],
+              ["Loại token", result.holdings.length, "text-zinc-100"],
               ["Quyền rút đang mở", result.approvals, result.approvals ? "text-red-400" : "text-emerald-400"],
               ["Token nguy hiểm", result.dangerousTokens, result.dangerousTokens ? "text-red-400" : "text-emerald-400"],
               ["Token bị khóa", result.frozen, result.frozen ? "text-red-400" : "text-emerald-400"],

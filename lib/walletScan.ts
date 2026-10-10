@@ -33,6 +33,7 @@ export type Holding = {
 
 export type WalletScanResult = {
   owner: string;
+  solBalance: number; // native SOL, not a token account
   holdings: Holding[];
   approvals: number;
   frozen: number;
@@ -50,9 +51,10 @@ type TokenAccountInfo = {
 
 export async function scanWallet(connection: Connection, ownerAddress: string): Promise<WalletScanResult> {
   const owner = new PublicKey(ownerAddress);
-  const pages = await Promise.all(
-    TOKEN_PROGRAMS.map((programId) => connection.getParsedTokenAccountsByOwner(owner, { programId }))
-  );
+  const [lamports, ...pages] = await Promise.all([
+    connection.getBalance(owner),
+    ...TOKEN_PROGRAMS.map((programId) => connection.getParsedTokenAccountsByOwner(owner, { programId })),
+  ]);
 
   const holdings: Holding[] = pages.flatMap((page, i) =>
     page.value.map(({ pubkey, account }) => {
@@ -99,6 +101,7 @@ export async function scanWallet(connection: Connection, ownerAddress: string): 
 
   return {
     owner: ownerAddress,
+    solBalance: lamports / 1e9,
     holdings,
     approvals: holdings.filter((h) => h.delegate).length,
     frozen: holdings.filter((h) => h.frozen).length,
