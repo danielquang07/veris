@@ -86,7 +86,12 @@ export default function ShieldPage() {
 
     if (aiRes.status === "fulfilled" && aiRes.value) {
       if (aiRes.value.ok) setMessage(aiRes.value.data);
-      else found.push(`AI đọc tin nhắn chưa sẵn sàng (mã ${aiRes.value.status}).`);
+      else
+        found.push(
+          aiRes.value.status === 503
+            ? "Bản online chỉ kiểm tra token. Phần AI đọc tin nhắn chạy trên máy chủ AI riêng, có trong bản demo trực tiếp."
+            : `AI đọc tin nhắn chưa phản hồi (mã ${aiRes.value.status}), thử lại sau.`
+        );
     } else if (aiRes.status === "rejected") {
       found.push("AI đọc tin nhắn chưa phản hồi, thử lại sau.");
     }
@@ -181,7 +186,7 @@ export default function ShieldPage() {
           )}
 
           {notes.map((n) => (
-            <p key={n} className="text-xs text-amber-400 bg-amber-950/30 border border-amber-900/40 rounded-lg p-3">
+            <p key={n} className="text-xs text-zinc-400 bg-zinc-900/60 border border-zinc-800 rounded-lg p-3">
               {n}
             </p>
           ))}
