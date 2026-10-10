@@ -9,8 +9,6 @@ import {
   ShieldCheck,
   CircleAlert,
   ExternalLink,
-  Volume2,
-  VolumeX,
   FileCheck,
   Loader2,
 } from "lucide-react";
@@ -18,7 +16,6 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { buildEvidenceTx, buildAiEvidenceMemo } from "@/lib/writeChain";
-import { loadVoices, NO_VIETNAMESE_VOICE_MESSAGE, pickVietnameseVoice } from "@/hooks/useVoiceInput";
 import type { RiskAnalysis } from "@/lib/risk-types";
 
 type Props = {
@@ -28,7 +25,6 @@ type Props = {
 export function ResultCard({ result }: Props) {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
-  const [speaking, setSpeaking] = useState(false);
   const [savingEvidence, setSavingEvidence] = useState(false);
   const [evidenceLink, setEvidenceLink] = useState<string | null>(null);
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
@@ -75,41 +71,6 @@ export function ResultCard({ result }: Props) {
   };
 
   const tier = getTier();
-
-  const handleSpeak = async () => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      alert("Trình duyệt không hỗ trợ Web Speech API.");
-      return;
-    }
-    const synth = window.speechSynthesis;
-    if (speaking) {
-      synth.cancel();
-      setSpeaking(false);
-      return;
-    }
-
-    synth.cancel();
-    const signalsSummary =
-      result.signals && result.signals.length > 0
-        ? `Các dấu hiệu gồm: ${result.signals.join(", ")}.`
-        : "Không phát hiện dấu hiệu lừa đảo rõ ràng.";
-    const textToRead = `Kết quả phân tích: ${tier.title}, điểm rủi ro ${score} trên 100. ${signalsSummary}`;
-
-    await loadVoices(synth);
-    const viVoice = pickVietnameseVoice(synth);
-    if (!viVoice) {
-      alert(NO_VIETNAMESE_VOICE_MESSAGE);
-      return;
-    }
-    const utter = new SpeechSynthesisUtterance(textToRead);
-    utter.lang = "vi-VN";
-    utter.voice = viVoice;
-
-    utter.onend = () => setSpeaking(false);
-    utter.onerror = () => setSpeaking(false);
-    setSpeaking(true);
-    synth.speak(utter);
-  };
 
   const handleSaveEvidence = async () => {
     if (!publicKey) {
@@ -159,27 +120,9 @@ export function ResultCard({ result }: Props) {
         </div>
       </div>
 
-      {/* Voice Readout & Evidence Save Actions */}
+      {/* Evidence Save Action */}
       <div className="flex flex-wrap items-center justify-between gap-2 bg-zinc-950/60 border border-zinc-800/60 rounded-lg p-3">
         <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            type="button"
-            onClick={handleSpeak}
-            className="text-xs flex items-center gap-1.5"
-          >
-            {speaking ? (
-              <>
-                <VolumeX className="h-3.5 w-3.5 text-danger" /> Dừng đọc
-              </>
-            ) : (
-              <>
-                <Volume2 className="h-3.5 w-3.5 text-accent" /> Nghe cảnh báo
-              </>
-            )}
-          </Button>
-
           <Button
             variant="secondary"
             size="sm"

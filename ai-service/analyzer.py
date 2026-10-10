@@ -147,7 +147,9 @@ class Analyzer:
             "Yêu cầu cung cấp OTP / mã xác nhận": ["otp", "mã xác nhận", "ma xac nhan", "xác thực"],
             "Đe dọa khóa tài khoản / thẻ": ["bị khóa", "bi khoa", "khóa thẻ", "vô hiệu"],
             "Hứa hẹn trúng thưởng / quà tặng": ["trúng thưởng", "trung thuong", "nhận quà", "nhan qua"],
-            "Tạo áp lực thời gian": ["trong 5 phút", "ngay lập tức", "gấp", "ngay bây giờ"],
+            "Tạo áp lực thời gian": ["trong 5 phút", "ngay lập tức", "gấp", "ngay bây giờ", "mua ngay", "kẻo lỡ", "chỉ còn"],
+            "Hứa lợi nhuận phi thực tế (x2, x10...)": [" x2", " x3", " x5", " x10", " x20", " x50", " x100", "gấp đôi", "lãi khủng", "chắc chắn lời"],
+            "Hô hào mua token / tiền ảo": ["token", "coin", "airdrop", "lên sàn", "kèo thơm", "pump", "memecoin"],
             "Yêu cầu chuyển tiền / phí": ["chuyển tiền", "chuyen tien", "phí ", "nap tien", "nạp tien"],
             "Giả danh cơ quan chức năng": ["công an", "cong an", "ngân hàng", "ngan hang", "viện kiểm sát"],
             "Link rút gọn / domain lạ": ["http://", "https://", ".xyz", ".top", ".info", ".click"],
@@ -214,6 +216,11 @@ class Analyzer:
         final_risk = max(0, min(100, final_risk))
 
         label = "SCAM" if final_risk >= 70 else ("SUSPICIOUS" if final_risk >= 40 else "SAFE")
+        if label == "SAFE":
+            # A safe verdict listing scam signals / criminal articles contradicts itself
+            # (e.g. a real bank OTP SMS that says "never share this code")
+            signals = []
+            legal_refs = []
 
         return AnalysisResult(
             risk_score=final_risk,

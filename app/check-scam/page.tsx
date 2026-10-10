@@ -6,7 +6,6 @@ import { ShieldCheck, MessageSquare, Wallet, Sparkles, ArrowLeft, RefreshCw } fr
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { VoiceInputField } from "@/components/ui/VoiceInputField";
 import { ResultCard } from "@/components/scam-check/ResultCard";
 import { extractAddresses } from "@/lib/address";
 import type { RiskAnalysis } from "@/lib/risk-types";
@@ -196,15 +195,6 @@ export default function CheckScamPage() {
                 </div>
               </div>
 
-              {/* Voice input helper */}
-              <div className="pt-2 border-t border-zinc-800/80">
-                <p className="text-xs text-zinc-400 mb-2">Hoặc nhập bằng giọng nói (Web Speech API):</p>
-                <VoiceInputField
-                  onTranscript={(text) => setInput(text)}
-                  placeholder="Bấm micro để đọc tin nhắn tiếng Việt..."
-                  className="rounded-lg bg-zinc-950 border border-zinc-800 p-2.5"
-                />
-              </div>
             </div>
           ) : (
             <div className="space-y-3">

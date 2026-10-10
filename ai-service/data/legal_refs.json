@@ -32,7 +32,7 @@
     "link": "https://vbpl.vn/TW/Pages/vbpqen-toanvan.aspx?ItemID=10196"
   },
   {
-    "pattern": "đầu tư|dau tu|lợi nhuận cao|loi nhuan cao|lãi suất|bảo hiểm|bảo hiểm nhân thọ|cổ phiếu|coin|tiền ảo",
+    "pattern": "đầu tư|dau tu|lợi nhuận cao|loi nhuan cao|lãi suất|bảo hiểm|bảo hiểm nhân thọ|cổ phiếu|coin|tiền ảo|token|airdrop|lên sàn|len san|x10|x20|x50|x100",
     "dieu": "174",
     "khoan": "3",
     "van_ban": "BLHS 2015",

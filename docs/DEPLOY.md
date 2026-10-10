@@ -19,11 +19,13 @@ Push lên nhánh `main` là Vercel tự deploy lại.
 
 ## Trang web
 
-- `/`: **Veris DEX**. Swap token có AI kiểm tra trước khi ký, kiểm tra thanh khoản, cung cấp thanh khoản, cầu nối cross-chain (mô phỏng). Dùng program Raydium CPMM Devnet và 2 pool thử có sẵn (SOL/USDC thử, SOL/USDT thử), không cần deploy gì thêm.
-- `/check-scam`: dán tin nhắn hoặc địa chỉ ví → AI chấm rủi ro → lưu bằng chứng `VERISAI` lên Solana.
+- `/`: **Veris DEX**. Swap token có Veris Shield kiểm tra token trước khi ký, kiểm tra thanh khoản, cung cấp thanh khoản, cầu nối cross-chain (mô phỏng). Dùng program Raydium CPMM Devnet và 2 pool thử có sẵn (SOL/USDC thử, SOL/USDT thử), không cần deploy gì thêm.
+- `/shield`: **Veris Shield**: quét token (on-chain + AI đọc tin nhắn), quét ví, thu hồi quyền rút; `/check-scam` chuyển hướng về đây.
 
 ## API
 
+- `GET /api/token-check?mint=`: báo cáo rủi ro token, đọc on-chain (chạy được trên Vercel, không cần AI service).
+- `GET /api/wallet-scan?owner=`: quét ví: token nguy hiểm, quyền rút đã cấp, token bị khóa.
 - `POST /api/analyze`: proxy sang AI service, cộng thêm điểm từ sổ đen `SCAMREG`.
 - `GET /api/health`: kiểm tra còn sống.
 - Gọi API từ domain khác: đặt `ALLOWED_ORIGINS` (để trống = cho mọi nguồn).

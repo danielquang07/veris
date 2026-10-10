@@ -1,14 +1,24 @@
-# Veris — AI Scam Detector trên Solana
+# Veris — DEX trên Solana có Veris Shield chống token lừa đảo
 
-Next.js DEX trên Solana devnet, tích hợp lớp AI cảnh báo lừa đảo tiếng Việt.
+Sàn swap trên Solana Devnet (Raydium CPMM). Trước khi người dùng ký, **Veris Shield** đọc thẳng dữ liệu token và ví trên Solana để cảnh báo token lừa đảo; AI tiếng Việt đọc tin nhắn "hô" mua token.
+
+## Veris Shield (chung kết)
+
+| Tính năng | Ở đâu | Làm gì |
+|---|---|---|
+| **Quét token** | `/shield` → Quét token, `GET /api/token-check?mint=` | Đọc on-chain: còn quyền in thêm (mint authority), còn quyền đóng băng (freeze authority), có metadata không, mạo danh USDC/USDT/SOL…, tuổi token, sổ đen SCAMREG → điểm rủi ro 0–100 |
+| **Dán tin nhắn** | `/shield` → Quét token | AI (XLM-R tiếng Việt) chấm tin nhắn + tự tách địa chỉ token trong tin để quét |
+| **Quét ví** | `/shield` → Quét ví, `GET /api/wallet-scan?owner=` | Liệt kê token đang giữ, tô đỏ token nguy hiểm, phát hiện **quyền rút đã cấp cho ví lạ** (SPL delegate) và token bị khóa |
+| **Thu hồi quyền** | `/shield` → Quét ví | Gửi lệnh SPL Token `Revoke` thật trên devnet |
+| **Gác cổng tự động** | Swap, Cung cấp thanh khoản | Token nguy hiểm → popup chặn **trước khi Phantom mở** |
+| **Lưu bằng chứng** | Báo cáo token / tin nhắn | Memo `VERISHIELD` / `VERISAI` kèm SHA-256 của báo cáo |
 
 ## Tổng quan — 3 tầng
 
-1. **On-chain (Solana Memo & Anchor):**
-   - **Đang chạy:** Sổ đen SCAMREG (Memo) + Ghi nhận bằng chứng AI VERISAI (Memo) + Raydium CPMM Pool.
-   - **Roadmap (Anchor đã sẵn sàng):** `scam_detector` (MLP int8 `predict([i8;256]) → u8`) + `veris_registry` (sổ cái báo cáo scam chuyên dụng, đã pass cargo check).
-2. **Off-chain AI (FastAPI + XLM-R):** NLP tiếng Việt + legal rules (BLHS 2015) + on-chain context (SCAMREG memo / RPC history) → `risk_score` 0–100.
-3. **Frontend (Next.js 16):** Swap & Check Scam → guard AI (`useAnalyzeBeforeSign`, `/check-scam`) → modal cảnh báo → user quyết định ký/hủy hoặc lưu bằng chứng on-chain.
+1. **On-chain (Solana Devnet):** đọc mint account, Metaplex metadata, token account (delegate, frozen), lịch sử chữ ký; ghi memo `SCAMREG` (sổ đen), `VERISHIELD`/`VERISAI` (bằng chứng); swap/LP qua Raydium CPMM; lệnh SPL Token `Revoke`.
+   Roadmap: Anchor `veris_registry` (sổ cái báo cáo) + `scam_detector`, đã viết và test, chưa deploy.
+2. **Off-chain AI (FastAPI + XLM-R):** NLP tiếng Việt + đối chiếu BLHS 2015 → `risk_score` 0–100 cho tin nhắn.
+3. **Frontend (Next.js 16):** DEX + `/shield`; popup Veris Shield trước khi ký.
 
 ## Kiến trúc
 
@@ -29,7 +39,7 @@ Next.js DEX trên Solana devnet, tích hợp lớp AI cảnh báo lừa đảo t
                                         │ POST /api/analyze
                  ┌──────────────────────▼───────────────────────┐
                  │  Frontend (Next.js 16)                       │
-                 │  Swap DEX + /check-scam + AI Warning Guard   │
+                 │  Swap DEX + /shield + popup trước khi ký     │
                  └──────────────────────────────────────────────┘
 ```
 
@@ -60,20 +70,20 @@ Chi tiết AI service: xem `ai-service/README.md`. Kịch bản demo 3 phút: xe
 
 ## Demo flow
 
-1. **Swap:** mở web, kết nối Phantom (devnet), tab Swap → pool USDC,
-   nhập amount → bấm "Ký và đổi".
-2. **AI check:** hook `useAnalyzeBeforeSign` gọi `POST /api/analyze`
-   (proxy → AI service `/analyze`, ~1–3s) với text swap + mint pool.
-3. **Modal warning:** `risk_score ≥ 70` → `RiskWarningModal` hiện điểm,
-   signals, trích dẫn luật, `on_chain_context` → user **Hủy giao dịch**.
-4. **Sign:** `risk_score < 70` → ký ngay, không modal. AI lỗi/timeout
-   → fail-open, swap đi tiếp bình thường.
+1. **Gác cổng khi swap:** kết nối Phantom (devnet), tab Swap → cặp **SOL / USDC thử** → "Ký và đổi"
+   → popup Veris Shield: token còn quyền in thêm + quyền đóng băng → **Hủy**.
+2. **Token sạch:** đổi sang **SOL / USDT thử** → "Ký và đổi" → không popup, Phantom mở, swap thành công.
+3. **Quét tin nhắn:** `/shield` → "Tin nhắn hô mua token" → Quét → báo cáo token + AI chấm tin nhắn
+   → "Lưu báo cáo lên Solana" → Solscan → Program Logs → `VERISHIELD|v1|…`.
+4. **Quét ví:** `/shield` → Quét ví → "Mô phỏng cấp quyền" (devnet) → thấy cảnh báo quyền rút → **Thu hồi quyền**.
+
+Kiểm tra token mà RPC lỗi/timeout → fail-open, giao dịch vẫn đi tiếp.
 
 ## Env vars
 
 | Var | Default | Meaning |
 |-----|---------|---------|
-| `NEXT_PUBLIC_AI_ENABLED` | `true` | Bật guard AI trước khi ký swap |
+| `NEXT_PUBLIC_AI_ENABLED` | `true` | Bật AI đọc tin nhắn (`/api/analyze`) |
 | `AI_SERVICE_URL` | `http://localhost:8000` | URL AI service (proxy `/api/analyze`) |
 | `SOLANA_RPC_URL` | `https://api.devnet.solana.com` | RPC cho on-chain context |
 | `VERIS_REGISTRY_PROGRAM_ID` | `9ukmHJe...SbEE` (khớp `declare_id!` trong `veris_registry`) | Program id `veris_registry` — TODO thay sau khi deploy devnet; tới lúc đó `report_count`=0 |
@@ -84,7 +94,7 @@ Chi tiết AI service: xem `ai-service/README.md`. Kịch bản demo 3 phút: xe
 - `REGISTRY_PROGRAM_ID` chưa deploy devnet → `report_count` luôn 0 cho tới khi deploy.
 - Rate limit in-memory, không share giữa instances.
 - Model XLM-R chạy CPU, load lazy ở request `/analyze` đầu tiên.
-- Hook `useAnalyzeBeforeSign` fail-open khi AI lỗi/timeout > 3s.
+- Veris Shield fail-open khi RPC lỗi/timeout > 15s; RPC devnet công cộng hay giới hạn tần suất (429).
 
 ---
 

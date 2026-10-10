@@ -5,6 +5,7 @@ import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useState } from "react";
 import {
   buildAddLiquidityTx,
+  DEX_POOLS,
   buildWithdrawLiquidityTx,
   explainTxError,
   fromBaseUnits,
@@ -12,6 +13,8 @@ import {
   type PoolSymbol,
 } from "@/lib/raydium";
 import { ErrorBox, Label, Panel, inputClass, primaryButtonClass, secondaryButtonClass } from "@/components/payment/ui";
+import { useTokenGuard } from "@/hooks/useTokenGuard";
+import { TokenGuardModal } from "@/components/shield/TokenGuardModal";
 import { PoolPicker, TxList, WalletHint, fmt, usePoolStats, useWalletBalances, type TxLog } from "@/components/dex/shared";
 
 /**
@@ -29,6 +32,7 @@ export function ProvideLiquidity() {
   const [logs, setLogs] = useState<TxLog[]>([]);
   const { stats, error: poolError, refresh } = usePoolStats(symbol);
   const { balances, refresh: refreshBalances } = useWalletBalances(symbol, stats?.lpMint);
+  const { guard, checking, report, onCancel, onContinue } = useTokenGuard();
 
   const solNum = Math.max(0, Number(solAmount.replace(",", ".")) || 0);
   const tokenNeeded = stats ? solNum * stats.price : 0;
@@ -38,11 +42,17 @@ export function ProvideLiquidity() {
   const tokenBalance = balances ? Number(balances.token.toString()) / 1e6 : 0;
   const notEnoughToken = !!balances && tokenNeeded > tokenBalance;
 
-  async function run(label: string, build: () => Promise<{ tx: import("@solana/web3.js").Transaction }>) {
+  async function run(
+    label: string,
+    build: () => Promise<{ tx: import("@solana/web3.js").Transaction }>,
+    guardMint?: string
+  ) {
     if (!publicKey) return setError("Kết nối ví Phantom (Devnet) trước.");
     setBusy(label);
     setError(null);
     try {
+      // Veris Shield: a creator who can mint or freeze can drain the pool you deposit into
+      if (guardMint && !(await guard(guardMint))) return;
       const { tx } = await build();
       const res = await sendTx(connection, sendTransaction, tx);
       setLogs((l) => [{ label, link: res.solscanLink }, ...l]);
@@ -96,12 +106,14 @@ export function ProvideLiquidity() {
           className={`${primaryButtonClass} mt-3`}
           disabled={!!busy || !publicKey || solNum <= 0 || notEnoughToken}
           onClick={() =>
-            run(`Nạp ${solAmount} SOL + ${fmt(tokenNeeded, 6)} ${symbol}`, () =>
-              buildAddLiquidityTx(connection, publicKey!, symbol, solAmount)
+            run(
+              `Nạp ${solAmount} SOL + ${fmt(tokenNeeded, 6)} ${symbol}`,
+              () => buildAddLiquidityTx(connection, publicKey!, symbol, solAmount),
+              DEX_POOLS[symbol].mint
             )
           }
         >
-          {busy?.startsWith("Nạp") ? "Đang mô phỏng & chờ ký ví..." : "Ký và nạp thanh khoản"}
+          {busy?.startsWith("Nạp") ? (checking ? "Veris Shield đang kiểm tra token..." : "Đang mô phỏng & chờ ký ví...") : "Ký và nạp thanh khoản"}
         </button>
       </div>
 
@@ -164,6 +176,7 @@ export function ProvideLiquidity() {
 
       {(error || poolError) && <ErrorBox message={error ?? poolError!} />}
       <TxList logs={logs} />
+      <TokenGuardModal report={report} action="nạp thanh khoản" onCancel={onCancel} onContinue={onContinue} />
     </div>
   );
 }

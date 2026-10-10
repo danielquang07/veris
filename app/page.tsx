@@ -3,14 +3,13 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import { ShieldCheck, Sparkles, Activity } from "lucide-react";
+import { ShieldCheck, Activity } from "lucide-react";
 import { CrossChainDemo } from "@/components/dex/CrossChainDemo";
 import { LiquidityCheck } from "@/components/dex/LiquidityCheck";
 import { ProvideLiquidity } from "@/components/dex/ProvideLiquidity";
 import { SwapToken } from "@/components/dex/SwapToken";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { VoiceInputField } from "@/components/ui/VoiceInputField";
 
 // The wallet button must skip SSR to avoid hydration mismatch
 const WalletMultiButton = dynamic(
@@ -24,7 +23,7 @@ const TABS: { id: Tab; label: string; hint: string }[] = [
   {
     id: "swap",
     label: "Swap Token",
-    hint: "Đổi SOL ↔ token qua pool Raydium CPMM trên Solana Devnet. Tích hợp AI kiểm tra lừa đảo trước khi ký ví.",
+    hint: "Đổi SOL ↔ token qua pool Raydium CPMM trên Solana Devnet. Veris Shield kiểm tra token trên chain trước khi ví mở ra.",
   },
   {
     id: "bridge",
@@ -39,7 +38,7 @@ const TABS: { id: Tab; label: string; hint: string }[] = [
   {
     id: "provide",
     label: "Cung cấp thanh khoản",
-    hint: "Nạp SOL + token theo tỉ lệ pool để nhận LP token và chia sẻ phí giao dịch trên pool Raydium.",
+    hint: "Nạp SOL + token theo tỉ lệ pool để nhận LP token và chia sẻ phí. Veris Shield kiểm tra token trước khi nạp.",
   },
 ];
 
@@ -66,16 +65,16 @@ export default function DexPage() {
                 </Badge>
               </div>
               <p className="text-xs text-zinc-400 hidden sm:block">
-                Sàn giao dịch phi tập trung tích hợp AI Scam Guard
+                Sàn giao dịch phi tập trung có Veris Shield chống token lừa đảo
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2.5 ml-auto">
             <Link
-              href="/check-scam"
+              href="/shield"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/15 border border-accent/40 text-accent hover:bg-accent/25 text-xs font-semibold transition-colors"
             >
-              <ShieldCheck className="h-3.5 w-3.5" /> Kiểm tra lừa đảo
+              <ShieldCheck className="h-3.5 w-3.5" /> Veris Shield
             </Link>
             <WalletMultiButton className="!bg-zinc-800 hover:!bg-zinc-700 !text-zinc-100 !text-xs !h-9 !rounded-lg !font-medium !transition-colors" />
           </div>
@@ -126,52 +125,37 @@ export default function DexPage() {
 
           {/* Sidebar / Auxiliary Insights Column */}
           <div className="space-y-4">
-            {/* AI Guard Overview Card */}
+            {/* Veris Shield Overview Card */}
             <Card className="border-zinc-800 bg-zinc-900/70 p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-accent" />
-                  <h3 className="text-sm font-semibold text-zinc-200">AI Scam Guard 24/7</h3>
+                  <h3 className="text-sm font-semibold text-zinc-200">Veris Shield</h3>
                 </div>
-                <Badge variant="safe">Hoạt động</Badge>
+                <Badge variant="safe">Đang bảo vệ</Badge>
               </div>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Mỗi giao dịch swap đều được mô phỏng và kiểm tra rủi ro tự động qua 3 lớp phòng vệ:
+                Mỗi lần bạn mua token hoặc nạp thanh khoản, Veris tự đọc token trên Solana trước khi ví mở ra:
               </p>
               <ul className="text-xs text-zinc-400 space-y-1.5 pl-1">
-                <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                  <span>XLM-RoBERTa phân tích ngôn ngữ tự nhiên (NLP tiếng Việt)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                  <span>Căn cứ pháp lý Bộ luật Hình sự 2015 (Điều 174, 290)</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-                  <span>On-chain heuristics & Sổ cái báo cáo Solana devnet</span>
-                </li>
+                {[
+                  "Người tạo còn quyền in thêm token?",
+                  "Người tạo còn quyền khóa token trong ví bạn?",
+                  "Token không tên, hoặc mạo danh USDC/USDT?",
+                  "Token có trong sổ đen cộng đồng?",
+                ].map((t) => (
+                  <li key={t} className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                    <span>{t}</span>
+                  </li>
+                ))}
               </ul>
-            </Card>
-
-            {/* Voice Input Assistant Card */}
-            <Card className="border-zinc-800 bg-zinc-900/70 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-amber-400" />
-                  <h3 className="text-sm font-semibold text-zinc-200">Trợ lý giọng nói (Web Speech)</h3>
-                </div>
-                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-mono">vi-VN</span>
-              </div>
-              <p className="text-xs text-zinc-400">
-                Nhấn micro để nhập số lượng hoặc nội dung giao dịch bằng tiếng Việt trực tiếp trên trình duyệt.
-              </p>
-              <div className="pt-1">
-                <VoiceInputField
-                  placeholder="Nhấn micro để thử nhận diện giọng nói tiếng Việt..."
-                  className="rounded-lg bg-zinc-950 border border-zinc-800/80 p-2.5"
-                />
-              </div>
+              <Link
+                href="/shield"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline"
+              >
+                Quét một token bất kỳ →
+              </Link>
             </Card>
 
             {/* Devnet Environment Info */}
@@ -185,10 +169,10 @@ export default function DexPage() {
                 <dd className="text-right text-zinc-300 font-mono">Solana Devnet</dd>
                 <dt className="text-zinc-500">Giao thức AMM:</dt>
                 <dd className="text-right text-zinc-300 font-mono">Raydium CPMM</dd>
-                <dt className="text-zinc-500">Mô hình AI:</dt>
-                <dd className="text-right text-zinc-300 font-mono">XLM-R Vi Phishing</dd>
-                <dt className="text-zinc-500">Cơ chế an toàn:</dt>
-                <dd className="text-right text-safe font-mono">Fail-open (3s)</dd>
+                <dt className="text-zinc-500">Kiểm tra token:</dt>
+                <dd className="text-right text-zinc-300 font-mono">Đọc trực tiếp on-chain</dd>
+                <dt className="text-zinc-500">AI đọc tin nhắn:</dt>
+                <dd className="text-right text-zinc-300 font-mono">XLM-R tiếng Việt</dd>
               </dl>
             </Card>
           </div>
