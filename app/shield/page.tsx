@@ -50,6 +50,10 @@ async function postJson<T>(url: string, body: unknown): Promise<{ ok: boolean; s
 
 export default function ShieldPage() {
   const [tab, setTab] = useState<"token" | "wallet">("token");
+  const [walletPreset, setWalletPreset] = useState("");
+  const [walletHint, setWalletHint] = useState<string | null>(null);
+  // The approval simulator mimics a drainer request, so it only shows on /shield?demo
+  const [showDemo] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("demo"));
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<TokenRiskReport | null>(null);
@@ -63,6 +67,7 @@ export default function ShieldPage() {
     setToken(null);
     setMessage(null);
     setNotes([]);
+    setWalletHint(null);
 
     // A bare address means "scan this token"; anything longer is a message that may contain one
     const address = extractAddresses(text).find((a) => a.chain === "sol")?.address ?? null;
@@ -78,6 +83,7 @@ export default function ShieldPage() {
 
     if (tokenRes.status === "fulfilled" && tokenRes.value) {
       if (tokenRes.value.ok) setToken(tokenRes.value.data);
+      else if ((tokenRes.value.data as { kind?: string }).kind === "wallet" && address) setWalletHint(address);
       else found.push(tokenRes.value.data.error ?? `Không kiểm tra được token (mã ${tokenRes.value.status}).`);
     } else if (tokenRes.status === "rejected") {
       found.push("Không kiểm tra được token lúc này (mạng chậm), thử lại sau.");
@@ -145,7 +151,7 @@ export default function ShieldPage() {
         </div>
 
         <div className={tab === "wallet" ? "" : "hidden"}>
-          <WalletScan />
+          <WalletScan key={walletPreset} presetOwner={walletPreset} showDemo={showDemo} />
         </div>
 
         <div className={tab === "token" ? "space-y-6" : "hidden"}>
@@ -183,6 +189,22 @@ export default function ShieldPage() {
               <Skeleton className="h-16 w-full" />
               <Skeleton className="h-16 w-full" />
             </Card>
+          )}
+
+          {walletHint && (
+            <div className="text-xs text-zinc-300 bg-zinc-900/60 border border-zinc-800 rounded-lg p-3 flex flex-wrap items-center justify-between gap-2">
+              <span>Đây là địa chỉ <b>ví</b>, không phải token.</span>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  setWalletPreset(walletHint);
+                  setTab("wallet");
+                }}
+              >
+                Quét ví này
+              </Button>
+            </div>
           )}
 
           {notes.map((n) => (

@@ -17,7 +17,7 @@ async function handle(mint: string) {
   try {
     return NextResponse.json(await checkToken(createServerConnection(), mint));
   } catch (e) {
-    if (e instanceof NotATokenError) return NextResponse.json({ error: e.message }, { status: 404 });
+    if (e instanceof NotATokenError) return NextResponse.json({ error: e.message, kind: e.kind }, { status: 404 });
     console.error("[api/token-check]", e);
     return NextResponse.json({ error: "Chưa đọc được dữ liệu token lúc này, thử lại sau." }, { status: 502 });
   }

@@ -14,10 +14,11 @@ import { explainTxError, sendTx } from "@/lib/raydium";
 import { approveInstruction, revokeInstruction } from "@/lib/tokenInstructions";
 import type { Holding, WalletScanResult } from "@/lib/walletScan";
 
-export function WalletScan() {
+/** presetOwner: address handed over from the token tab; showDemo: reveal the approval simulator (?demo in the URL) */
+export function WalletScan({ presetOwner = "", showDemo = false }: { presetOwner?: string; showDemo?: boolean }) {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
-  const [owner, setOwner] = useState("");
+  const [owner, setOwner] = useState(presetOwner);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<WalletScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -164,7 +165,7 @@ export function WalletScan() {
             })}
           </div>
 
-          {isOwnWallet && (
+          {isOwnWallet && showDemo && (
             <div className="rounded-lg border border-dashed border-zinc-700 p-3 flex flex-wrap items-center justify-between gap-2">
               <p className="text-xs text-zinc-500 flex items-center gap-1.5">
                 <Wallet className="h-3.5 w-3.5" /> Demo devnet: tái hiện việc lỡ ký cấp quyền cho một ví lạ.

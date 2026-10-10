@@ -66,7 +66,14 @@ const WEIGHT: Record<TokenCheck["id"], number> = {
   age: 15,
 };
 
-export class NotATokenError extends Error {}
+const SYSTEM_PROGRAM = "11111111111111111111111111111111";
+
+/** kind = "wallet" when the address is a normal wallet, so the UI can offer a wallet scan instead */
+export class NotATokenError extends Error {
+  constructor(message: string, readonly kind: "wallet" | "missing" | "other") {
+    super(message);
+  }
+}
 
 const cache = new Map<string, { at: number; report: TokenRiskReport }>();
 
@@ -115,7 +122,10 @@ export async function checkToken(connection: Connection, mintAddress: string): P
   const owner = value?.owner.toBase58();
   const parsed = (value?.data as ParsedAccountData | undefined)?.parsed;
   if (!value || (owner !== TOKEN_PROGRAM && owner !== TOKEN_2022_PROGRAM) || parsed?.type !== "mint") {
-    throw new NotATokenError("Địa chỉ này không phải một token trên Solana Devnet.");
+    if (!value) throw new NotATokenError("Địa chỉ này chưa có trên Solana Devnet.", "missing");
+    if (owner === SYSTEM_PROGRAM)
+      throw new NotATokenError("Đây là địa chỉ ví, không phải token.", "wallet");
+    throw new NotATokenError("Địa chỉ này không phải một token trên Solana Devnet.", "other");
   }
   const mintInfo = parsed.info as { mintAuthority: string | null; freezeAuthority: string | null; decimals: number };
 
